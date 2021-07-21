@@ -76,16 +76,25 @@ and DIR is the directory to find notes. "
   (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
 
 (defun consult-notes-grep (cand)
-  "Run consult-ripgrep in directory of notes file CAND."
+  "Run affe-grep in directory of notes file CAND."
   (interactive "fNote: ")
-  (consult-ripgrep (file-name-directory cand)))
+  (affe-grep (file-name-directory cand)))
+
+;; FIXME
+;; (defun consult-notes-org-headline (cand)
+;;   "Search org headlines of notes file CAND."
+;;   (interactive "fNote: ")
+;;   (let ((file (file-name-directory cand)))
+;;     (consult-org-heading file)))
 
 (embark-define-keymap consult-notes-map
-                      "Keymap for Embark notes actions."
-                      :parent embark-file-map
-                      ("d" consult-notes-dired)
-                      ("g" consult-notes-grep)
-                      ("m" consult-notes-marked))
+  "Keymap for Embark notes actions."
+  :parent embark-file-map
+  ("d" consult-notes-dired)
+  ("g" consult-notes-grep)
+  ;; ("h" consult-notes-org-headline)
+  ("m" consult-notes-marked))
+
 
 (add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
 ;; make embark-export use dired for notes
