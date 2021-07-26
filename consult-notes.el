@@ -10,13 +10,10 @@
 (defvar consult-notes-history nil
   "History variable for consult-notes.")
 
-(defvar consult-notes-sources-data
-  '(("Zettel"        ?z "~/Dropbox/Work/projects/notebook/content-org/")
-    ("Org"           ?o "~/Dropbox/org-files/org-search/")
-    ("Lecture Notes" ?l "~/Dropbox/Work/projects/lectures/"))
+(defvar consult-notes-sources-data nil
   "Sources for file search.")
 
-(defvar consult-notes-all-notes "~/Dropbox/Work/projects/notes-all/"
+(defvar consult-notes-all-notes nil
   "Dir for affe-grep of all notes.")
 
 (defun consult-notes-make-source (name char dir)
