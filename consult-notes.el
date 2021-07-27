@@ -14,7 +14,7 @@
   '(("Org" ?o org-agenda-files))
   "Sources for file search.")
 
-(defvar consult-notes-all-notes nil
+(defvar consult-notes-all-notes ""
   "Dir for affe-grep of all notes.")
 
    (defun consult-notes-make-source (name char dir)
