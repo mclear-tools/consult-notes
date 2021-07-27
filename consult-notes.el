@@ -11,7 +11,7 @@
   "History variable for consult-notes.")
 
 (defvar consult-notes-sources-data
-  '(("Org"           ?o org-agenda-files))
+  '(("Org" ?o org-agenda-files))
   "Sources for file search.")
 
 (defvar consult-notes-all-notes nil
