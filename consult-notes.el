@@ -54,9 +54,9 @@ and DIR is the directory to find notes. "
 
 ;;;###autoload
 (defun consult-notes-search-all ()
-  "Search all notes using affe-grep."
+  "Search all notes using grep."
   (interactive)
-  (affe-grep consult-notes-all-notes))
+  (consult-grep consult-notes-all-notes))
 
 
 ;;;; Embark support
