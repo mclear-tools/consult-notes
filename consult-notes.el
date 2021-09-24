@@ -2,7 +2,6 @@
 (require 'consult)    ;; core dependency
 (require 'marginalia) ;; for faces
 (require 'embark)     ;; for actions
-(require 'affe)       ;; for search
 
 (defvar consult-notes-category 'consult-note
   "Category symbol for the notes in this package.")
@@ -15,7 +14,7 @@
   "Sources for file search.")
 
 (defvar consult-notes-all-notes ""
-  "Dir for affe-grep of all notes.")
+  "Dir for grep of all notes.")
 
    (defun consult-notes-make-source (name char dir)
      "Return a notes source list suitable for `consult--multi'.
@@ -74,9 +73,9 @@ and DIR is the directory to find notes. "
   (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
 
 (defun consult-notes-grep (cand)
-  "Run affe-grep in directory of notes file CAND."
+  "Run grep in directory of notes file CAND."
   (interactive "fNote: ")
-  (affe-grep (file-name-directory cand)))
+  (consult-grep (file-name-directory cand)))
 
 ;; FIXME
 ;; (defun consult-notes-org-headline (cand)
