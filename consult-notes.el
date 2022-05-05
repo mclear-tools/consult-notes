@@ -55,11 +55,12 @@ and DIR is the directory to find notes. "
 (defun consult-notes-search-all ()
   "Search all notes using grep."
   (interactive)
-  (consult-grep consult-notes-all-notes))
+  (let ((consult-ripgrep-args "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
+   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed ."))
+    (consult-ripgrep consult-notes-all-notes)))
 
 
 ;;;; Embark support
-
 (defun consult-notes-dired (cand)
   "Open notes directory dired with point on file CAND."
   (interactive "fNote: ")
