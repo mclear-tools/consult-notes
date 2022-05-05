@@ -53,11 +53,15 @@ and DIR is the directory to find notes. "
 
 ;;;###autoload
 (defun consult-notes-search-all ()
-  "Search all notes using grep."
+  "Search all notes using ripgrep.
+If ripgrep is not installed fall back to consult-grep."
   (interactive)
   (let ((consult-ripgrep-args "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
-   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed ."))
-    (consult-ripgrep consult-notes-all-notes)))
+   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed .")
+        (consult-grep-args "grep --null --line-buffered --color=never --ignore-case   --exclude-dir=.git --line-number -I -R -S ."))
+    (if (executable-find "rg")
+        (consult-ripgrep consult-notes-all-notes)
+      (consult-grep consult-notes-all-notes))))
 
 
 ;;;; Embark support
