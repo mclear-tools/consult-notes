@@ -7,7 +7,7 @@ potentially breaking ways, so please update with care!
 #+ATTR_HTML: :width 85%
 [[file:screenshots/notes-screenshot.png]]
 
-* Installation;;;; Consult Notes
+* Installation
 #+begin_src emacs-lisp
 (use-package consult-notes
   :straight (:type git :host github :repo "mclear-tools/consult-notes")
