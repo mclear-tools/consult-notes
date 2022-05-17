@@ -1,0 +1,18 @@
+This is a package for easily selecting notes via consult. It is largely drawn
+from this [[https://github.com/minad/consult/wiki/hrm-notes][wiki entry]] on the consult github page.
+
+NOTE: I have a lot of work to do on this so the package will likely change in
+potentially breaking ways, so please update with care!
+
+#+ATTR_HTML: :width 85%
+[[file:screenshots/notes-screenshot.png]]
+
+* Installation;;;; Consult Notes
+#+begin_src emacs-lisp
+(use-package consult-notes
+  :straight (:type git :host github :repo "mclear-tools/consult-notes")
+  :commands (consult-notes consult-notes-search-all)
+  :config
+  (defvar consult-notes-sources-data nil "Sources for file search.")
+  (defvar consult-notes-all-notes nil "Dir for search of all notes."))
+#+end_src
