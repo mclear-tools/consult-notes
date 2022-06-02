@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.1
-;; Package-Requires: ((emacs "27.1") (consult "0.17"))
+;; Package-Requires: ((emacs "28.1") (consult "0.17") (marginalia) (embark) (dired))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -32,10 +32,11 @@
 
 ;;; Code
 ;;;; Requirements
-(require 'consult)    ;; core dependency
-(require 'marginalia) ;; for faces
-(require 'embark)     ;; for actions
-(require 'dired-x)
+(eval-when-compile
+  (require 'consult)    ;; core dependency
+  (require 'marginalia) ;; for faces & time/date
+  (require 'embark)     ;; for actions
+  (require 'dired-x))   ;; for use of dired-jump
 
 ;;;; Variables
 (defgroup consult-notes nil
@@ -99,8 +100,8 @@ and DIR is the directory to find notes. "
   "Annotate file CAND with its source name, size, and modification time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
-	     (ftime (format-time-string "%b %d %H:%M" (file-attribute-modification-time attrs))))
-    (put-text-property 0 (length name) 'face 'marginalia-type name)
+	     (ftime (marginalia--time (file-attribute-modification-time attrs))))
+    (put-text-property 0 (length name)  'face 'marginalia-type name)
     (put-text-property 0 (length fsize) 'face 'marginalia-size fsize)
     (put-text-property 0 (length ftime) 'face 'marginalia-date ftime)
     (format "%15s  %7s  %10s" name fsize ftime)))
