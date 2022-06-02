@@ -7,7 +7,7 @@ It can be used on its own or in tandem with org-roam (see the minor-mode in
 Consult-notes applies annotations in the minibuffer via [[https://github.com/minad/marginalia][marginalia]] and actions
 on candidates via [[https://github.com/oantolin/embark][embark]].
 
-NOTE: I have a lot of work to do on this so the package will likely change in
+NOTE: This is still in a fluctuating state, the package may change in
 potentially breaking ways, so please update with care!
 
 #+ATTR_HTML: :width 85%
@@ -22,8 +22,9 @@ potentially breaking ways, so please update with care!
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
-  ;; set org-roam integration
-  (consult-notes-org-roam-mode))
+  (setq consult-notes-sources-data) ;; set notes dir(s), see below
+  (consult-notes-org-roam-mode)) ;; set org-roam integration
+
 #+end_src
 
 * Usage
@@ -47,5 +48,7 @@ to search. Consult will treat all the aliased files and dirs as if they were all
 together in one dir and searches them quickly and easily. Set this via
 =consult-notes-all-notes=. 
 
-If you want to use the functions and settings with org-roam be sure to call the
-minor-mode integration via =(consult-notes-org-roam-mode)=. 
+If you want to integrate consult-notes with org-roam be sure to call the
+minor-mode integration via =(consult-notes-org-roam-mode)=. This provides some
+useful functions and makes the org-roam display interface look like that of the
+consult-notes interface. More functionality may be added in the future. 
