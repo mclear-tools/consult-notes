@@ -32,11 +32,11 @@
 
 ;;; Code
 ;;;; Requirements
-(eval-when-compile
-  (require 'consult)    ;; core dependency
-  (require 'marginalia) ;; for faces & time/date
-  (require 'embark)     ;; for actions
-  (require 'dired-x))   ;; for use of dired-jump
+
+(require 'consult)    ;; core dependency
+(require 'marginalia) ;; for faces & time/date
+(require 'embark)     ;; for actions
+(require 'dired-x)   ;; for use of dired-jump
 
 ;;;; Variables
 (defgroup consult-notes nil
