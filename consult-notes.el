@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.1
-;; Package-Requires: ((emacs "28.1") (consult "0.17") (marginalia) (embark) (dired))
+;; Package-Requires: ((emacs "28.1") (consult "0.17") (marginalia) (embark))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
