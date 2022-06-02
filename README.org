@@ -1,6 +1,12 @@
 This is a package for easily selecting notes via consult. It is largely drawn
 from this [[https://github.com/minad/consult/wiki/hrm-notes][wiki entry]] on the consult github page.
 
+It can be used on its own or in tandem with org-roam (see the minor-mode in
+=consult-notes-org-roam.el=. 
+
+Consult-notes applies annotations in the minibuffer via [[https://github.com/minad/marginalia][marginalia]] and actions
+on candidates via [[https://github.com/oantolin/embark][embark]].
+
 NOTE: I have a lot of work to do on this so the package will likely change in
 potentially breaking ways, so please update with care!
 
@@ -11,8 +17,35 @@ potentially breaking ways, so please update with care!
 #+begin_src emacs-lisp
 (use-package consult-notes
   :straight (:type git :host github :repo "mclear-tools/consult-notes")
-  :commands (consult-notes consult-notes-search-all)
+  :commands (consult-notes
+             consult-notes-search-all
+             consult-notes-org-roam-find-node
+             consult-notes-org-roam-find-node-relation)
   :config
-  (defvar consult-notes-sources-data nil "Sources for file search.")
-  (defvar consult-notes-all-notes nil "Dir for search of all notes."))
+  ;; set org-roam integration
+  (consult-notes-org-roam-mode))
 #+end_src
+
+* Usage
+
+Set notes directories via =consult-notes-sources-data=. This is a list of a title,
+key (for narrowing), and directory path. For example:
+
+#+begin_src emacs-lisp
+(setq consult-notes-sources-data
+      '(("Zettel"          ?z "~/Dropbox/Work/projects/notebook/content-org/")
+        ("Org"             ?o "~/Dropbox/org-files/")
+        ("Lecture Notes"   ?l "~/Dropbox/Work/projects/notebook/content-org/lectures/")
+        ("Reference Notes" ?r "~/Dropbox/Work/projects/notebook/content-org/ref-notes/")
+        ("Org Refile"      ?R "~/Dropbox/Work/projects/notebook/org-refile/")))
+#+end_src
+
+To search all your notes with grep (or ripgrep if installed) you need to either
+limit your searches to a single directory, or create a directory containing
+aliases of all the files or directories that you have notes in that you'd like
+to search. Consult will treat all the aliased files and dirs as if they were all
+together in one dir and searches them quickly and easily. Set this via
+=consult-notes-all-notes=. 
+
+If you want to use the functions and settings with org-roam be sure to call the
+minor-mode integration via =(consult-notes-org-roam-mode)=. 
