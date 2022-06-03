@@ -30,7 +30,7 @@
 
 ;; Manage your notes with consult.
 
-;;; Code
+;;; Code:
 ;;;; Requirements
 (require 'consult)    ;; core dependency
 
@@ -54,6 +54,13 @@ There are three elements in the list. The first is a title string. The second is
   :group 'consult-notes
   :type '(list string key string))
 
+(defcustom consult-notes-sources nil
+  "Sources used by `consult-notes'.
+
+Directories of files will be pushed to this list from `consult-notes-sources-data', but the user may add other sources as they wish, following the format provided by `consult--multi'."
+  :group 'consult-notes
+  :type '(repeat symbol))
+
 (defcustom consult-notes-all-notes ""
   "Dir for grep of all notes."
   :group 'consult-notes
@@ -71,7 +78,7 @@ There are three elements in the list. The first is a title string. The second is
   :type 'string)
 
 (defcustom consult-notes-default-format '(org-mode)
-  "Default format for consult-notes open function."
+  "Default format for `consult-notes' open function."
   :group 'consult-notes
   :type 'sexp)
 
@@ -124,7 +131,7 @@ a relative age."
 (defun consult-notes-make-source (name char dir)
   "Return a notes source list suitable for `consult--multi'.
 NAME is the source name, CHAR is the narrowing character,
-and DIR is the directory to find notes. "
+and DIR is the directory to find notes."
   (let ((idir (propertize (file-name-as-directory dir) 'invisible t)))
     `(:name     ,name
       :narrow   ,char
@@ -137,7 +144,7 @@ and DIR is the directory to find notes. "
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 (defun consult-annotate-note (name cand)
-  "Annotate file CAND with its source name, size, and modification time."
+  "Annotate file CAND with its source NAME, size, and modification time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
@@ -146,19 +153,32 @@ and DIR is the directory to find notes. "
     (put-text-property 0 (length ftime) 'face 'consult-key ftime)
     (format "%15s  %7s  %10s" name fsize ftime)))
 
+(defun consult-notes--sources-dir-data ()
+  "Add generated `consult--multi' sources to list of sources."
+  (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes-make-source s))
+		                 consult-notes-sources-data)))
+    (dolist (i sources)
+      (add-to-list 'consult-notes-sources i))))
+
 ;;;###autoload
-(defun consult-notes ()
-  "Find a file in a notes directory with consult-multi."
+(defun consult-notes (&optional sources)
+  "Find a file in a notes directory with consult-multi, or from SOURCES."
   (interactive)
-  (consult--multi (mapcar #'(lambda (s) (apply 'consult-notes-make-source s))
-			              consult-notes-sources-data)
-		          :prompt "Notes: "
-		          :history 'consult-notes-history))
+  (consult-notes--sources-dir-data)
+  (let ((selected (consult--multi (or sources consult-notes-sources)
+                                  :require-match
+                                  (confirm-nonexistent-file-or-buffer)
+                                  :prompt "Notes: "
+                                  :history 'consult-notes-history
+                                  )))
+    ;; For non-matching candidates, fall back to buffer-file creation.
+    (unless (plist-get (cdr selected) :match)
+      (consult--file-action (car selected)))))
 
 ;;;###autoload
 (defun consult-notes-search-all ()
   "Search all notes using ripgrep.
-If ripgrep is not installed fall back to consult-grep."
+If ripgrep is not installed fall back to `consult-grep'."
   (interactive)
   (let ((consult-ripgrep-args consult-notes-ripgrep-args)
         (consult-grep-args consult-notes-grep-args))

@@ -161,8 +161,6 @@ With universal ARG tries to navigate the tags of the current note. Optionally ta
         (org-roam-node-open fnode)
       (message "No notes cite this reference."))))
 
-
-
 ;; Define a minor-mode for consult-notes & org-roam
 ;;;###autoload
 (define-minor-mode consult-notes-org-roam-mode
