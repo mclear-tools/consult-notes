@@ -34,6 +34,7 @@
 
 (require 'consult-notes)
 (require 'org-roam)
+(require 'citar)
 
 ;;;; Variables
 
@@ -122,7 +123,46 @@ With universal ARG tries to navigate the tags of the current note. Optionally ta
         (org-roam-node-visit node)
       (consult-notes-org-roam-find-node-relation nil next-node (cons next-node (-map #'org-roam-backlink-source-node (org-roam-backlinks-get next-node)))))))
 
-;;;; Consult-Notes-Org-Roam-Mode
+;; Search org-roam notes for citations (depends on citar)
+(defun consult-notes-org-roam-cited (reference)
+  "Return a list of notes that cite the REFERENCE."
+  (interactive (list (citar-select-ref
+                      :rebuild-cache current-prefix-arg
+                      :filter (citar-has-note))))
+  (let* ((ids
+          (org-roam-db-query [:select * :from citations
+                              :where (= cite-key $s1)]
+                             (car reference)))
+         (anodes
+          (mapcar (lambda (id)
+                    (org-roam-node-from-id (car id)))
+                  ids))
+         (template
+          (org-roam-node--process-display-format org-roam-node-display-template))
+         (bnodes
+          (mapcar (lambda (node)
+                    (org-roam-node-read--to-candidate node template)) anodes))
+         (node (completing-read
+                "Node: "
+                (lambda (string pred action)
+                  (if (eq action 'metadata)
+                      `(metadata
+                        ;; get title using annotation function
+                        (annotation-function
+                         . ,(lambda (title)
+                              (funcall org-roam-node-annotation-function
+                                       (get-text-property 0 'node title))))
+                        (category . org-roam-node))
+                    (complete-with-action action bnodes string pred)))))
+         (fnode
+          (cdr (assoc node bnodes))))
+    (if ids
+        ;; Open node in other window
+        (org-roam-node-open fnode)
+      (message "No notes cite this reference."))))
+
+
+
 ;; Define a minor-mode for consult-notes & org-roam
 ;;;###autoload
 (define-minor-mode consult-notes-org-roam-mode
@@ -131,7 +171,7 @@ By enabling `consult-notes-org-roam-mode' the functions `org-roam-node-read' and
 `org-roam-ref-read' are overriden by consults-org-roam's equivalents. Optional
 argument ARG indicates whether the mode should be enabled or disabled."
   :lighter nil
-  (require 'org-roam)
+  :global t
   ;; Add or remove advice when enabled respectively disabled
   (if consult-notes-org-roam-mode
       (progn
