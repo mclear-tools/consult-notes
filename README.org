@@ -52,3 +52,39 @@ If you want to integrate consult-notes with org-roam be sure to call the
 minor-mode integration via =(consult-notes-org-roam-mode)=. This provides some
 useful functions and makes the org-roam display interface look like that of the
 consult-notes interface. More functionality may be added in the future. 
+
+* Embark support
+
+If you use [[https://github.com/oantolin/embark][embark]] you can integrate consult-notes actions with embark like so: 
+
+#+begin_src emacs-lisp
+(defun consult-notes-open-dired (cand)
+  "Open notes directory dired with point on file CAND."
+  (interactive "fNote: ")
+  ;; dired-jump is in dired-x.el but is moved to dired in Emacs 28
+  (dired-jump nil cand))
+
+(defun consult-notes-marked (cand)
+  "Open a notes file CAND in Marked 2.
+Marked 2 is a mac app that renders markdown."
+  (interactive "fNote: ")
+  (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
+
+(defun consult-notes-grep (cand)
+  "Run grep in directory of notes file CAND."
+  (interactive "fNote: ")
+  (consult-grep (file-name-directory cand)))
+
+(embark-define-keymap consult-notes-map
+                      "Keymap for Embark notes actions."
+                      :parent embark-file-map
+                      ("d" consult-notes-dired)
+                      ("g" consult-notes-grep)
+                      ;; ("h" consult-notes-org-headline)
+                      ("m" consult-notes-marked))
+
+(add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
+
+;; make embark-export use dired for notes
+(setf (alist-get consult-notes-category embark-exporters-alist) #'embark-export-dired)
+#+end_src

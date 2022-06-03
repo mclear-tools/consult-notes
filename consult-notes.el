@@ -32,11 +32,7 @@
 
 ;;; Code
 ;;;; Requirements
-
 (require 'consult)    ;; core dependency
-(require 'marginalia) ;; for faces & time/date
-(require 'embark)     ;; for actions
-(require 'dired-x)   ;; for use of dired-jump
 
 ;;;; Variables
 (defgroup consult-notes nil
@@ -79,6 +75,50 @@ There are three elements in the list. The first is a title string. The second is
   :group 'consult-notes
   :type 'sexp)
 
+(defcustom consult-notes-max-relative-age (* 60 60 24 14)
+  "Maximum relative age in seconds displayed by the file annotator.
+
+Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
+a relative age."
+  :type 'integer)
+
+;;;; Time/Date Functions
+;; These are derived from Daniel Mendler's Marginalia package.
+;; See https://github.com/minad/marginalia
+
+(defconst consult-notes--time-relative
+  `((100 "sec" 1)
+    (,(* 60 100) "min" 60.0)
+    (,(* 3600 30) "hour" 3600.0)
+    (,(* 3600 24 400) "day" ,(* 3600.0 24.0))
+    (nil "year" ,(* 365.25 24 3600)))
+  "Formatting used by the function `consult-notes--time-relative'.")
+
+;; Taken from `seconds-to-string'.
+(defun consult-notes--time-relative (time)
+  "Format TIME as a relative age."
+  (setq time (max 0 (float-time (time-since time))))
+  (let ((sts consult-notes--time-relative) here)
+    (while (and (car (setq here (pop sts))) (<= (car here) time)))
+    (setq time (round time (caddr here)))
+    (format "%s %s%s ago" time (cadr here) (if (= time 1) "" "s"))))
+
+(defun consult-notes--time-absolute (time)
+  "Format TIME as an absolute age."
+  (let ((system-time-locale "C"))
+    (format-time-string
+     (if (> (decoded-time-year (decode-time (current-time)))
+            (decoded-time-year (decode-time time)))
+         " %Y %b %d"
+       "%b %d %H:%M")
+     time)))
+
+(defun consult-notes--time (time)
+  "Format file age TIME, suitably for use in annotations."
+  (if (< (float-time (time-since time)) consult-notes-max-relative-age)
+      (consult-notes--time-relative time)
+    (consult-notes--time-absolute time)))
+
 ;;;; General Notes Functions
 
 (defun consult-notes-make-source (name char dir)
@@ -100,10 +140,10 @@ and DIR is the directory to find notes. "
   "Annotate file CAND with its source name, size, and modification time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
-	     (ftime (marginalia--time (file-attribute-modification-time attrs))))
-    (put-text-property 0 (length name)  'face 'marginalia-type name)
-    (put-text-property 0 (length fsize) 'face 'marginalia-size fsize)
-    (put-text-property 0 (length ftime) 'face 'marginalia-date ftime)
+	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
+    (put-text-property 0 (length name)  'face 'consult-key name)
+    (put-text-property 0 (length fsize) 'face 'consult-key fsize)
+    (put-text-property 0 (length ftime) 'face 'consult-key ftime)
     (format "%15s  %7s  %10s" name fsize ftime)))
 
 ;;;###autoload
@@ -125,37 +165,6 @@ If ripgrep is not installed fall back to consult-grep."
     (if (executable-find "rg")
         (consult-ripgrep consult-notes-all-notes)
       (consult-grep consult-notes-all-notes))))
-
-
-;;;; Embark support
-(defun consult-notes-open-dired (cand)
-  "Open notes directory dired with point on file CAND."
-  (interactive "fNote: ")
-  ;; dired-jump is in dired-x.el but is moved to dired in Emacs 28
-  (dired-jump nil cand))
-
-(defun consult-notes-marked (cand)
-  "Open a notes file CAND in Marked 2.
-Marked 2 is a mac app that renders markdown."
-  (interactive "fNote: ")
-  (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
-
-(defun consult-notes-grep (cand)
-  "Run grep in directory of notes file CAND."
-  (interactive "fNote: ")
-  (consult-grep (file-name-directory cand)))
-
-(embark-define-keymap consult-notes-map
-                      "Keymap for Embark notes actions."
-                      :parent embark-file-map
-                      ("d" consult-notes-dired)
-                      ("g" consult-notes-grep)
-                      ;; ("h" consult-notes-org-headline)
-                      ("m" consult-notes-marked))
-
-(add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
-;; make embark-export use dired for notes
-(setf (alist-get consult-notes-category embark-exporters-alist) #'embark-export-dired)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
