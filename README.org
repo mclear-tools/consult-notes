@@ -22,11 +22,13 @@ potentially breaking ways, so please update with care!
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
+  (setq consult-notes-data-dirs '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
+  ;; Define sources 
   (setq consult-notes-sources '(consult-notes--data-dirs
                                 consult-notes--org-roam-nodes
-                                consult-notes--org-roam-refs))
-  (setq consult-notes-datadirs) ;; set notes dir(s), see below
-  (consult-notes-org-roam-mode)) ;; set org-roam integration
+                                consult-notes--org-roam-refs
+                                my-other-notes--source))
+  (consult-notes-org-roam-mode)) ;; Set org-roam integration
 #+end_src
 
 * Usage
