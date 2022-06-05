@@ -22,22 +22,21 @@ potentially breaking ways, so please update with care!
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
-  (setq consult-notes-sources-data) ;; set notes dir(s), see below
+  (setq consult-notes-sources '(consult-notes--data-dirs
+                                consult-notes--org-roam-nodes
+                                consult-notes--org-roam-refs))
+  (setq consult-notes-datadirs) ;; set notes dir(s), see below
   (consult-notes-org-roam-mode)) ;; set org-roam integration
-
 #+end_src
 
 * Usage
 
-Set notes directories via =consult-notes-sources-data=. This is a list of a title,
+Set notes directories via =consult-notes-sources-data-dirs=. This is a list of a title,
 key (for narrowing), and directory path. For example:
 
 #+begin_src emacs-lisp
-(setq consult-notes-sources-data
-      '(("Zettel"          ?z "~/Dropbox/Work/projects/notebook/content-org/")
-        ("Org"             ?o "~/Dropbox/org-files/")
-        ("Lecture Notes"   ?l "~/Dropbox/Work/projects/notebook/content-org/lectures/")
-        ("Reference Notes" ?r "~/Dropbox/Work/projects/notebook/content-org/ref-notes/")
+(setq consult-notes-sources-data-dirs
+      '(("Org"             ?o "~/Dropbox/org-files/")
         ("Org Refile"      ?R "~/Dropbox/Work/projects/notebook/org-refile/")))
 #+end_src
 
@@ -50,8 +49,9 @@ together in one dir and searches them quickly and easily. Set this via
 
 If you want to integrate consult-notes with org-roam be sure to call the
 minor-mode integration via =(consult-notes-org-roam-mode)=. This provides some
-useful functions and makes the org-roam display interface look like that of the
-consult-notes interface. More functionality may be added in the future. 
+useful functions to integrate search of org-roam nodes and of org-roam
+refereces. It also the org-roam display interface look like that of the
+consult-notes interface when used apart from consult (e.g. in calling =org-roam-node-find=). More functionality may be added in the future. 
 
 * Embark support
 
@@ -87,4 +87,47 @@ Marked 2 is a mac app that renders markdown."
 
 ;; make embark-export use dired for notes
 (setf (alist-get consult-notes-category embark-exporters-alist) #'embark-export-dired)
+#+end_src
+
+* Citar Support
+If you use [[https://github.com/emacs-citar/citar][citar]] you can integrate support with org-roam as follows:
+
+#+begin_src emacs-lisp
+;; Search org-roam notes for citations (depends on citar)
+(defun consult-notes-org-roam-cited (reference)
+  "Return a list of notes that cite the REFERENCE."
+  (interactive (list (citar-select-ref
+                      :rebuild-cache current-prefix-arg
+                      :filter (citar-has-note))))
+  (let* ((ids
+          (org-roam-db-query [:select * :from citations
+                              :where (= cite-key $s1)]
+                             (car reference)))
+         (anodes
+          (mapcar (lambda (id)
+                    (org-roam-node-from-id (car id)))
+                  ids))
+         (template
+          (org-roam-node--process-display-format org-roam-node-display-template))
+         (bnodes
+          (mapcar (lambda (node)
+                    (org-roam-node-read--to-candidate node template)) anodes))
+         (node (completing-read
+                "Node: "
+                (lambda (string pred action)
+                  (if (eq action 'metadata)
+                      `(metadata
+                        ;; get title using annotation function
+                        (annotation-function
+                         . ,(lambda (title)
+                              (funcall org-roam-node-annotation-function
+                                       (get-text-property 0 'node title))))
+                        (category . org-roam-node))
+                    (complete-with-action action bnodes string pred)))))
+         (fnode
+          (cdr (assoc node bnodes))))
+    (if ids
+        ;; Open node in other window
+        (org-roam-node-open fnode)
+      (message "No notes cite this reference."))))
 #+end_src

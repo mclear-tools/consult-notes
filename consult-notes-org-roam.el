@@ -68,11 +68,64 @@
                         :from links
                         :where (= dest $s1)
                         :and (= type "id")]
-                       (org-roam-node-id node))))
-         )
+                       (org-roam-node-id node)))))
     (if (> count 0)
         (format "%d" count)
       "nil")))
+
+(defun consult-notes-org-roam-annotate (cand)
+  (let* ((node
+          (org-roam-node-from-title-or-alias cand))
+         (file
+          (org-roam-node-file node))
+         (attrs
+          (file-attributes file))
+         (dir
+          (file-name-nondirectory (directory-file-name (file-name-directory file))))
+         (size
+          (file-size-human-readable (file-attribute-size (file-attributes file))))
+         (time
+          (consult-notes--time (org-roam-node-file-mtime node)))
+         ;; (time (consult-notes--time (file-attribute-modification-time attrs)))
+         (links (caar (org-roam-db-query
+                       [:select (funcall count source)
+                        :from links
+                        :where (= dest $s1)
+                        :and (= type "id")]
+                       (org-roam-node-id node)))))
+    (put-text-property 0 (length dir)   'face 'consult-separator dir)
+    (put-text-property 0 (length size)  'face 'consult-key size)
+    (put-text-property 0 (length time)  'face 'consult-key time)
+    (concat (format "%7s %7s" dir size) "  " (format "%10s" time) "  " (if (> links 0) (propertize (format "%3s" links) 'face 'consult-line-number)
+                                                                         (propertize (format "%3s" "nil") 'face 'shadow)))))
+
+;;;; Org-Roam & Consult--Multi
+;; Define sources for consult--multi
+(defvar consult-notes--org-roam-nodes
+  `(:name "Zettel Nodes: "
+    :narrow ?z
+    :require-match t
+    :category 'org-roam-node
+    :annotate ,#'consult-notes-org-roam-annotate
+    :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
+                         (title (mapcar #'org-roam-node-title node)))
+                    (progn title)))
+    :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
+                         (org-roam-node-open node))))
+  "Setup for `org-roam' and `consult--multi'.")
+
+(defvar consult-notes--org-roam-refs
+  `(:name "Reference Nodes: "
+    :narrow ?r
+    :require-match t
+    :category 'org-roam-ref
+    :annotate ,#'consult-notes-org-roam-annotate
+    :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-ref-read--completions)))
+                         (title (mapcar #'org-roam-node-title node)))
+                    (progn title)))
+    :action (lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
+                        (org-roam-node-open node))))
+  "Setup for `org-roam-refs' and `consult--multi'.")
 
 ;; Alias org-roam-node-find
 (defalias 'consult-notes-org-roam-find-node 'org-roam-node-find
@@ -119,44 +172,6 @@ With universal ARG tries to navigate the tags of the current note. Optionally ta
         (org-roam-node-visit node)
       (consult-notes-org-roam-find-node-relation nil next-node (cons next-node (-map #'org-roam-backlink-source-node (org-roam-backlinks-get next-node)))))))
 
-;; Search org-roam notes for citations (depends on citar)
-(defun consult-notes-org-roam-cited (reference)
-  "Return a list of notes that cite the REFERENCE."
-  (interactive (list (citar-select-ref
-                      :rebuild-cache current-prefix-arg
-                      :filter (citar-has-note))))
-  (let* ((ids
-          (org-roam-db-query [:select * :from citations
-                              :where (= cite-key $s1)]
-                             (car reference)))
-         (anodes
-          (mapcar (lambda (id)
-                    (org-roam-node-from-id (car id)))
-                  ids))
-         (template
-          (org-roam-node--process-display-format org-roam-node-display-template))
-         (bnodes
-          (mapcar (lambda (node)
-                    (org-roam-node-read--to-candidate node template)) anodes))
-         (node (completing-read
-                "Node: "
-                (lambda (string pred action)
-                  (if (eq action 'metadata)
-                      `(metadata
-                        ;; get title using annotation function
-                        (annotation-function
-                         . ,(lambda (title)
-                              (funcall org-roam-node-annotation-function
-                                       (get-text-property 0 'node title))))
-                        (category . org-roam-node))
-                    (complete-with-action action bnodes string pred)))))
-         (fnode
-          (cdr (assoc node bnodes))))
-    (if ids
-        ;; Open node in other window
-        (org-roam-node-open fnode)
-      (message "No notes cite this reference."))))
-
 ;; Define a minor-mode for consult-notes & org-roam
 ;;;###autoload
 (define-minor-mode consult-notes-org-roam-mode
@@ -172,10 +187,16 @@ argument ARG indicates whether the mode should be enabled or disabled."
         ;; Save previous value of display-template
         (setq org-roam-old-display-template org-roam-node-display-template)
         ;; Set new value
-        (setq org-roam-node-display-template consult-notes-org-roam-template))
+        (setq org-roam-node-display-template consult-notes-org-roam-template)
+        ;; Add org-roam consult--multi integration
+        (add-to-list 'consult-notes-sources 'consult-notes--org-roam-nodes 'append)
+        (add-to-list 'consult-notes-sources 'consult-notes--org-roam-refs 'append))
+
     (progn
       ;; Reset display template value
-      (setq org-roam-node-display-template org-roam-old-display-template))))
+      (setq org-roam-node-display-template org-roam-old-display-template)
+      (delete 'consult-notes--org-roam-nodes consult-notes-sources)
+      (delete 'consult-notes--org-roam-refs  consult-notes-sources))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
