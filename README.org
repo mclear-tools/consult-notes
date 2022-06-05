@@ -4,8 +4,10 @@ from this [[https://github.com/minad/consult/wiki/hrm-notes][wiki entry]] on the
 It can be used on its own or in tandem with org-roam (see the minor-mode in
 =consult-notes-org-roam.el=. 
 
-Consult-notes applies annotations in the minibuffer via [[https://github.com/minad/marginalia][marginalia]] and actions
-on candidates via [[https://github.com/oantolin/embark][embark]].
+Consult-notes provides annotations on note candidates in the minibuffer
+(currently directory, file size, last-modfied time, and (for org-roam) tags and
+number of backlinks. Consult-notes may be configured to act on selected
+candidates via [[https://github.com/oantolin/embark][embark]] (see below). 
 
 NOTE: This is still in a fluctuating state, the package may change in
 potentially breaking ways, so please update with care!
@@ -137,3 +139,9 @@ If you use [[https://github.com/emacs-citar/citar][citar]] you can integrate sup
         (org-roam-node-open fnode)
       (message "No notes cite this reference."))))
 #+end_src
+
+* Acknowledgments
+
+Thanks to [[https://github.com/minad][Daniel Mendler]] for consult, the work of Howard Melman, whose original
+[[https://github.com/minad/consult/wiki/hrm-notes][notes function]] provided the initial basis for this package, and [[https://github.com/bdarcus][Bruce D'Arcus]]
+for helpful discussion.
