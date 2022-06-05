@@ -1,5 +1,7 @@
-This is a package for easily selecting notes via consult. It is largely drawn
-from this [[https://github.com/minad/consult/wiki/hrm-notes][wiki entry]] on the consult github page.
+This is a package for easily selecting notes via consult. It's most basic use is
+to integrate directories of files (notes) from multiple sources and to provide
+easy narrowing via =consult=. But notes can be in principle added from any source
+that can be integrated with consult. 
 
 It can be used on its own or in tandem with org-roam (see the minor-mode in
 =consult-notes-org-roam.el=. 
