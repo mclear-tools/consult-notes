@@ -34,24 +34,20 @@
 
 (require 'consult-notes)
 (require 'org-roam)
-(require 'citar)
 
 ;;;; Variables
-
 (defcustom consult-notes-org-roam-template
   (concat "${blinks:3} "
           "${title:84} "
-          (propertize "${dir:12} "  'face 'marginalia-size)
-          (propertize "${sizes:6} " 'face 'marginalia-size)
-          (propertize "${fmtime} "  'face 'marginalia-date)
+          (propertize "${dir:12} "  'face 'consult-key)
+          (propertize "${sizes:6} " 'face 'consult-key)
+          (propertize "${fmtime} "  'face 'consult-key)
           (propertize "${tags:10} " 'face 'org-tag))
   "Default display template for org-roam notes."
   :group 'consult-notes
   :type 'string)
 
-
 ;;;; Functions
-
 ;; Display functions
 (cl-defmethod org-roam-node-sizes ((node org-roam-node))
   "Display NODE size."
@@ -63,7 +59,7 @@
 
 (cl-defmethod org-roam-node-fmtime ((node org-roam-node))
   "Display NODE modified time."
-  (marginalia--time (org-roam-node-file-mtime node)))
+  (consult-notes--time (org-roam-node-file-mtime node)))
 
 (cl-defmethod org-roam-node-blinks ((node org-roam-node))
   "Display NODE backlinks count."

@@ -47,7 +47,7 @@
   "History variable for `consult-notes'."
   :group 'consult-notes)
 
-(defcustom consult-notes-sources-data
+(defcustom consult-notes-data-dirs
   '(("Org" ?o org-agenda-files))
   "Sources for `consult-notes' file search.
 There are three elements in the list. The first is a title string. The second is a narrowing key, and the third is a path (string)."
@@ -57,7 +57,7 @@ There are three elements in the list. The first is a title string. The second is
 (defcustom consult-notes-sources nil
   "Sources used by `consult-notes'.
 
-Directories of files will be pushed to this list from `consult-notes-sources-data', but the user may add other sources as they wish, following the format provided by `consult--multi'."
+Directories of files will be pushed to this list from `consult-notes-data-dirs', but the user may add other sources as they wish, following the format provided by `consult--multi'."
   :group 'consult-notes
   :type '(repeat symbol))
 
@@ -148,15 +148,15 @@ and DIR is the directory to find notes."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
-    (put-text-property 0 (length name)  'face 'consult-key name)
+    (put-text-property 0 (length name)  'face 'consult-separator name)
     (put-text-property 0 (length fsize) 'face 'consult-key fsize)
     (put-text-property 0 (length ftime) 'face 'consult-key ftime)
     (format "%15s  %7s  %10s" name fsize ftime)))
 
-(defun consult-notes--sources-dir-data ()
+(defun consult-notes--sources-data-dirs ()
   "Add generated `consult--multi' sources to list of sources."
   (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes-make-source s))
-		                 consult-notes-sources-data)))
+		                 consult-notes-data-dirs)))
     (dolist (i sources)
       (add-to-list 'consult-notes-sources i))))
 
@@ -164,13 +164,12 @@ and DIR is the directory to find notes."
 (defun consult-notes (&optional sources)
   "Find a file in a notes directory with consult-multi, or from SOURCES."
   (interactive)
-  (consult-notes--sources-dir-data)
+  (consult-notes--sources-data-dirs)
   (let ((selected (consult--multi (or sources consult-notes-sources)
                                   :require-match
                                   (confirm-nonexistent-file-or-buffer)
                                   :prompt "Notes: "
-                                  :history 'consult-notes-history
-                                  )))
+                                  :history 'consult-notes-history)))
     ;; For non-matching candidates, fall back to buffer-file creation.
     (unless (plist-get (cdr selected) :match)
       (consult--file-action (car selected)))))
