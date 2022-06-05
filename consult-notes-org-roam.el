@@ -37,12 +37,12 @@
 
 ;;;; Variables
 (defcustom consult-notes-org-roam-template
-  (concat "${blinks:3} "
-          "${title:84} "
+  (concat "${title:84} "
           (propertize "${dir:12} "  'face 'consult-key)
           (propertize "${sizes:6} " 'face 'consult-key)
           (propertize "${fmtime} "  'face 'consult-key)
-          (propertize "${tags:10} " 'face 'org-tag))
+          (propertize "${tags:10} " 'face 'org-tag)
+          "${blinks:3} ")
   "Default display template for org-roam notes."
   :group 'consult-notes
   :type 'string)
@@ -69,9 +69,9 @@
                         :where (= dest $s1)
                         :and (= type "id")]
                        (org-roam-node-id node)))))
-    (if (> count 0)
-        (format "%d" count)
-      "nil")))
+    (if (> count 0) (propertize (format "%3s" count) 'face 'consult-line-number)
+      (propertize (format "%3s" "nil") 'face 'shadow))))
+
 
 (defun consult-notes-org-roam-annotate (cand)
   (let* ((node
