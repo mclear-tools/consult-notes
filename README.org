@@ -31,7 +31,7 @@ potentially breaking ways, so please update with care!
 
 * Usage
 
-Set notes directories via =consult-notes-sources-data-dirs=. This is a list of a title,
+Set notes directories via =consult-notes-data-dirs=. This is a list of a title,
 key (for narrowing), and directory path. For example:
 
 #+begin_src emacs-lisp
@@ -39,6 +39,9 @@ key (for narrowing), and directory path. For example:
       '(("Org"             ?o "~/Dropbox/org-files/")
         ("Org Refile"      ?R "~/Dropbox/Work/projects/notebook/org-refile/")))
 #+end_src
+
+To set sources for =consult--multi= please see the instruction for adding [[https://github.com/minad/consult#multiple-sources][multiple
+sources with consult]]. Set the variable =consult-notes-sources=. 
 
 To search all your notes with grep (or ripgrep if installed) you need to either
 limit your searches to a single directory, or create a directory containing
@@ -50,8 +53,9 @@ together in one dir and searches them quickly and easily. Set this via
 If you want to integrate consult-notes with org-roam be sure to call the
 minor-mode integration via =(consult-notes-org-roam-mode)=. This provides some
 useful functions to integrate search of org-roam nodes and of org-roam
-refereces. It also the org-roam display interface look like that of the
-consult-notes interface when used apart from consult (e.g. in calling =org-roam-node-find=). More functionality may be added in the future. 
+references with consult. It also sets the org-roam display interface to look like
+that of the consult-notes interface when used apart from consult (e.g. in
+calling =org-roam-node-find=). More functionality may be added in the future.
 
 * Embark support
 
