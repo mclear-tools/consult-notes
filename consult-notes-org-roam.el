@@ -63,15 +63,15 @@ The default function displays back links, dir, file size, and modified time. Ple
   :group 'consult-notes
   :type 'string)
 
-(defcustom consult-notes-org-roam-node-narrow-key "?z"
+(defcustom consult-notes-org-roam-node-narrow-key '?z
   "Name for narrowing key for org-roam node notes in `consult--multi'."
   :group 'consult-notes
-  :type 'string)
+  :type 'key)
 
-(defcustom consult-notes-org-roam-ref-narrow-key "?r"
+(defcustom consult-notes-org-roam-ref-narrow-key '?r
   "Name for narrowing key for org-roam ref notes in `consult--multi'."
   :group 'consult-notes
-  :type 'string)
+  :type 'key)
 
 ;;;; Functions
 ;; Display functions
