@@ -151,7 +151,7 @@ and DIR is the directory to find notes."
     (put-text-property 0 (length name)  'face 'consult-separator name)
     (put-text-property 0 (length fsize) 'face 'consult-key fsize)
     (put-text-property 0 (length ftime) 'face 'consult-key ftime)
-    (format "%15s  %7s  %10s" name fsize ftime)))
+    (format "%s  %5s  %5s" name fsize ftime)))
 
 (defun consult-notes--sources-data-dirs ()
   "Add generated `consult--multi' sources to list of sources."
