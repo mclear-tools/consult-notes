@@ -47,6 +47,32 @@
   :group 'consult-notes
   :type 'string)
 
+(defcustom consult-notes-org-roam-annotate-function #'consult-notes-org-roam-annotate
+  "Function to call for annotations for org-roam nodes/refs in `consult-notes'.
+The default function displays back links, dir, file size, and modified time. Please see the function `consult-notes-org-roam-annotate' for details."
+  :group 'consult-notes
+  :type 'function)
+
+(defcustom consult-notes-org-roam-node-name "Zettel Roam Nodes"
+  "Name for org-roam node search section in `consult--multi'."
+  :group 'consult-notes
+  :type 'string)
+
+(defcustom consult-notes-org-roam-ref-name "Reference Roam Nodes"
+  "Name for org-roam refs search section in `consult--multi'."
+  :group 'consult-notes
+  :type 'string)
+
+(defcustom consult-notes-org-roam-node-narrow-key "?z"
+  "Name for narrowing key for org-roam node notes in `consult--multi'."
+  :group 'consult-notes
+  :type 'string)
+
+(defcustom consult-notes-org-roam-ref-narrow-key "?r"
+  "Name for narrowing key for org-roam ref notes in `consult--multi'."
+  :group 'consult-notes
+  :type 'string)
+
 ;;;; Functions
 ;; Display functions
 (cl-defmethod org-roam-node-sizes ((node org-roam-node))
@@ -101,11 +127,11 @@
 ;;;; Org-Roam & Consult--Multi
 ;; Define sources for consult--multi
 (defvar consult-notes--org-roam-nodes
-  `(:name "Zettel Nodes: "
-    :narrow ?z
+  `(:name ,consult-notes-org-roam-node-name
+    :narrow ,consult-notes-org-roam-node-narrow-key
     :require-match t
     :category 'org-roam-node
-    :annotate ,#'consult-notes-org-roam-annotate
+    :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
                          (title (mapcar #'org-roam-node-title node)))
                     (progn title)))
@@ -114,11 +140,11 @@
   "Setup for `org-roam' and `consult--multi'.")
 
 (defvar consult-notes--org-roam-refs
-  `(:name "Reference Nodes: "
-    :narrow ?r
+  `(:name ,consult-notes-org-roam-ref-name
+    :narrow ,consult-notes-org-roam-ref-narrow-key
     :require-match t
     :category 'org-roam-ref
-    :annotate ,#'consult-notes-org-roam-annotate
+    :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-ref-read--completions)))
                          (title (mapcar #'org-roam-node-title node)))
                     (progn title)))

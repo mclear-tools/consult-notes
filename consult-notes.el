@@ -66,6 +66,12 @@ Directories of files will be pushed to this list from `consult-notes-data-dirs',
   :group 'consult-notes
   :type 'string)
 
+(defcustom consult-notes-annotate-note-function #'consult-notes-annotate-note
+  "Function to call for annotations in `consult-notes'.
+The default function displays dir, file size, and modified time. Please see the function `consult-notes-annotate-note' for details."
+  :group 'consult-notes
+  :type 'function)
+
 (defcustom consult-notes-ripgrep-args  "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
    --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed ."
   "Arguments for `ripgrep' and `consult-notes-search-all'."
@@ -127,7 +133,7 @@ a relative age."
     (consult-notes--time-absolute time)))
 
 ;;;; General Notes Functions
-
+;; (setq consult-notes-annotate-note-function #'consult-notes-annotate-note)
 (defun consult-notes-make-source (name char dir)
   "Return a notes source list suitable for `consult--multi'.
 NAME is the source name, CHAR is the narrowing character,
@@ -137,13 +143,13 @@ and DIR is the directory to find notes."
       :narrow   ,char
       :category ,consult-notes-category
       :face     consult-file
-      :annotate ,(apply-partially 'consult-annotate-note name)
+      :annotate ,(apply-partially consult-notes-annotate-note-function name)
       :items    ,(lambda () (mapcar (lambda (f) (concat idir f))
 				               ;; filter files that glob *.*
 				               (directory-files dir nil "[^.].*[.].+")))
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
-(defun consult-annotate-note (name cand)
+(defun consult-notes-annotate-note (name cand)
   "Annotate file CAND with its source NAME, size, and modification time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
