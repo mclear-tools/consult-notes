@@ -15,7 +15,9 @@ NOTE: This is still in a fluctuating state, the package may change in
 potentially breaking ways, so please update with care!
 
 #+ATTR_HTML: :width 85%
-[[file:screenshots/notes-screenshot.png]]
+[[file:screenshots/notes-screenshot1.png]]
+#+ATTR_HTML: :width 85%
+[[file:screenshots/notes-screenshot2.png]]
 
 * Installation
 #+begin_src emacs-lisp
