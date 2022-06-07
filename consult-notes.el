@@ -41,23 +41,30 @@
 
 (defcustom consult-notes-category 'consult-note
   "Category symbol for the notes in this package."
-  :group 'consult-notes)
+  :group 'consult-notes
+  :type 'symbol)
 
 (defcustom consult-notes-history nil
   "History variable for `consult-notes'."
-  :group 'consult-notes)
+  :group 'consult-notes
+  :type 'symbol)
 
 (defcustom consult-notes-data-dirs
   '(("Org" ?o org-agenda-files))
   "Sources for `consult-notes' file search.
-There are three elements in the list. The first is a title string. The second is a narrowing key, and the third is a path (string)."
+
+There are three elements in the list. The first is a title
+string. The second is a narrowing key, and the third is a
+path (string)."
   :group 'consult-notes
   :type '(list string key string))
 
 (defcustom consult-notes-sources nil
   "Sources used by `consult-notes'.
 
-Directories of files will be pushed to this list from `consult-notes-data-dirs', but the user may add other sources as they wish, following the format provided by `consult--multi'."
+Directories of files will be pushed to this list from
+`consult-notes-data-dirs', but the user may add other sources as
+they wish, following the format provided by `consult--multi'."
   :group 'consult-notes
   :type '(repeat symbol))
 
@@ -68,7 +75,10 @@ Directories of files will be pushed to this list from `consult-notes-data-dirs',
 
 (defcustom consult-notes-annotate-note-function #'consult-notes-annotate-note
   "Function to call for annotations in `consult-notes'.
-The default function displays dir, file size, and modified time. Please see the function `consult-notes-annotate-note' for details."
+
+The default function displays dir, file size, and modified time.
+Please see the function `consult-notes-annotate-note' for
+details."
   :group 'consult-notes
   :type 'function)
 
@@ -134,7 +144,7 @@ a relative age."
 
 ;;;; General Notes Functions
 ;; (setq consult-notes-annotate-note-function #'consult-notes-annotate-note)
-(defun consult-notes-make-source (name char dir)
+(defun consult-notes--make-source (name char dir)
   "Return a notes source list suitable for `consult--multi'.
 NAME is the source name, CHAR is the narrowing character,
 and DIR is the directory to find notes."
@@ -150,7 +160,8 @@ and DIR is the directory to find notes."
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 (defun consult-notes-annotate-note (name cand)
-  "Annotate file CAND with its source NAME, size, and modification time."
+  "Annotate file CAND with its source NAME, size, and modification
+time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
@@ -161,7 +172,7 @@ and DIR is the directory to find notes."
 
 (defun consult-notes--sources-data-dirs ()
   "Add generated `consult--multi' sources to list of sources."
-  (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes-make-source s))
+  (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes--make-source s))
 		                 consult-notes-data-dirs)))
     (dolist (i sources)
       (add-to-list 'consult-notes-sources i))))

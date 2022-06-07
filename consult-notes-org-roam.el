@@ -48,8 +48,11 @@
   :type 'string)
 
 (defcustom consult-notes-org-roam-annotate-function #'consult-notes-org-roam-annotate
-  "Function to call for annotations for org-roam nodes/refs in `consult-notes'.
-The default function displays back links, dir, file size, and modified time. Please see the function `consult-notes-org-roam-annotate' for details."
+  "Function for annotations for org-roam nodes/refs in `consult-notes'.
+
+The default function displays back links, dir, file size, and
+modified time. Please see the function
+`consult-notes-org-roam-annotate' for details."
   :group 'consult-notes
   :type 'function)
 
@@ -155,19 +158,22 @@ The default function displays back links, dir, file size, and modified time. Ple
 ;; Alias org-roam-node-find
 (defalias 'consult-notes-org-roam-find-node 'org-roam-node-find
   "Find and open an Org-roam node by its title or alias.
-        INITIAL-INPUT is the initial input for the prompt.
-        FILTER-FN is a function to filter out nodes: it takes an `org-roam-node',
-        and when nil is returned the node will be filtered out.
-        If OTHER-WINDOW, visit the NODE in another window.
-        The TEMPLATES, if provided, override the list of capture templates (see
-        `org-roam-capture-'.)")
+
+INITIAL-INPUT is the initial input for the prompt. FILTER-FN is a
+function to filter out nodes: it takes an `org-roam-node', and
+when nil is returned the node will be filtered out. If
+OTHER-WINDOW, visit the NODE in another window. The TEMPLATES, if
+provided, override the list of capture templates (see
+`org-roam-capture-'.)")
 
 ;; Find Org-Roam nodes by relation
 ;; https://ag91.github.io/blog/2021/03/12/find-org-roam-notes-via-their-relations/
 ;;;###autoload
 (defun consult-notes-org-roam-find-node-relation (arg &optional node choices)
   "Navigate org-roam notes by link relation.
-With universal ARG tries to navigate the tags of the current note. Optionally takes a selected NOTE and filepaths CHOICES."
+
+With universal ARG tries to navigate the tags of the current
+note. Optionally takes a selected NOTE and filepaths CHOICES."
   (interactive "P")
   (let* ((depth (if (numberp arg) arg 1))
          (choices
@@ -201,10 +207,13 @@ With universal ARG tries to navigate the tags of the current note. Optionally ta
 ;;;###autoload
 (define-minor-mode consult-notes-org-roam-mode
   "Toggle `consult-notes-org-roam-mode' to integrate consult with org-roam.
-By enabling `consult-notes-org-roam-mode' the functions `org-roam-node-read' and
-`org-roam-ref-read' are overriden by consults-org-roam's equivalents. Optional
-argument ARG indicates whether the mode should be enabled or disabled."
+
+By enabling `consult-notes-org-roam-mode' the functions
+`org-roam-node-read' and `org-roam-ref-read' are overriden by
+consults-org-roam's equivalents. Optional argument ARG indicates
+whether the mode should be enabled or disabled."
   :lighter nil
+  :group 'consult-notes
   :global t
   ;; Add or remove advice when enabled respectively disabled
   (if consult-notes-org-roam-mode
