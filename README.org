@@ -20,6 +20,10 @@ potentially breaking ways, so please update with care!
 [[file:screenshots/notes-screenshot2.png]]
 
 * Installation
+Eventually this will be available on MELPA, but in the meantime you'll need to
+install the package from this repo. Installation with use-package and straight
+is pretty easy:
+
 #+begin_src emacs-lisp
 (use-package consult-notes
   :straight (:type git :host github :repo "mclear-tools/consult-notes")
