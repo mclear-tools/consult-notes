@@ -51,12 +51,11 @@ key (for narrowing), and directory path. For example:
 To set sources for =consult--multi= please see the instruction for adding [[https://github.com/minad/consult#multiple-sources][multiple
 sources with consult]]. Set the variable =consult-notes-sources=. 
 
-To search all your notes with grep (or ripgrep if installed) you need to either
-limit your searches to a single directory, or create a directory containing
-aliases of all the files or directories that you have notes in that you'd like
-to search. Consult will treat all the aliased files and dirs as if they were all
-together in one dir and searches them quickly and easily. Set this via
-=consult-notes-all-notes=. 
+*NOTE*: If you don't use any sources beyond that of files in directories, then you
+don't need to explicitly set =consult-notes-sources=; setting
+=consult-notes-data-dirs= is enough. If you do want to integrate different kinds
+of sources (e.g. org-roam nodes and directories of files) then you should set
+the sources variable as well. 
 
 If you want to integrate consult-notes with org-roam be sure to call the
 minor-mode integration via =(consult-notes-org-roam-mode)=. This provides some
@@ -68,6 +67,13 @@ calling =org-roam-node-find=). More functionality may be added in the future.
 You may customize narrowing keys for all sources, as well as the separator names
 and annotations used. Please see =customize-group RET 'consult-notes' RET= (or the
 relevant `.el' files) for details.
+
+To search all your notes with grep (or ripgrep if installed) you need to either
+limit your searches to a single directory, or create a directory containing
+aliases of all the files or directories that you have notes in that you'd like
+to search. Consult will treat all the aliased files and dirs as if they were all
+together in one dir and searches them quickly and easily. Set this via
+=consult-notes-all-notes=. 
 
 * Embark support
 
