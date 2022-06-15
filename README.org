@@ -106,7 +106,6 @@ Marked 2 is a mac app that renders markdown."
                       :parent embark-file-map
                       ("d" consult-notes-dired)
                       ("g" consult-notes-grep)
-                      ;; ("h" consult-notes-org-headline)
                       ("m" consult-notes-marked))
 
 (add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
