@@ -72,12 +72,12 @@ You may customize narrowing keys for all sources, as well as the separator names
 and annotations used. Please see =customize-group RET 'consult-notes' RET= (or the
 relevant `.el' files) for details.
 
-To search all your notes with grep (or ripgrep if installed) you need to either
-limit your searches to a single directory, or create a directory containing
-aliases of all the files or directories that you have notes in that you'd like
-to search. Consult will treat all the aliased files and dirs as if they were all
-together in one dir and searches them quickly and easily. Set this via
-=consult-notes-all-notes=. 
+To search all your notes with grep (or ripgrep if installed -- see
+=consult-notes-use-rg= variable) you need to either limit your searches to a
+single directory, or create a directory containing aliases of all the files or
+directories that you have notes in that you'd like to search. Consult will treat
+all the aliased files and dirs as if they were all together in one dir and
+searches them quickly and easily. Set this via =consult-notes-all-notes=.
 
 * Embark support
 

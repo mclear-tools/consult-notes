@@ -82,6 +82,11 @@ details."
   :group 'consult-notes
   :type 'function)
 
+(defcustom consult-notes-use-rg t
+  "Whether to use ripgrep or just grep for text searches."
+  :group 'consult-notes
+  :type 'boolean)
+
 (defcustom consult-notes-ripgrep-args  "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
    --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed ."
   "Arguments for `ripgrep' and `consult-notes-search-all'."
@@ -143,7 +148,7 @@ a relative age."
     (consult-notes--time-absolute time)))
 
 ;;;; General Notes Functions
-;; (setq consult-notes-annotate-note-function #'consult-notes-annotate-note)
+
 (defun consult-notes--make-source (name char dir)
   "Return a notes source list suitable for `consult--multi'.
 NAME is the source name, CHAR is the narrowing character,
@@ -198,7 +203,7 @@ If ripgrep is not installed fall back to `consult-grep'."
   (interactive)
   (let ((consult-ripgrep-args consult-notes-ripgrep-args)
         (consult-grep-args consult-notes-grep-args))
-    (if (executable-find "rg")
+    (if consult-notes-use-rg
         (consult-ripgrep consult-notes-all-notes)
       (consult-grep consult-notes-all-notes))))
 
