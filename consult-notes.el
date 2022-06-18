@@ -129,6 +129,14 @@ a relative age."
   "Face for directory data in `consult-notes'."
   :group 'faces)
 
+(defface consult-notes-backlinks '((t (:inherit (warning) :weight light)))
+  "Face for directory data in `consult-notes'."
+  :group 'faces)
+
+(defface consult-notes-sep '((t (:inherit (bold))))
+  "Face for directory data in `consult-notes'."
+  :group 'faces)
+
 ;;;; Time/Date Functions
 ;; These are derived from Daniel Mendler's Marginalia package.
 ;; See https://github.com/minad/marginalia
@@ -173,7 +181,7 @@ a relative age."
 NAME is the source name, CHAR is the narrowing character,
 and DIR is the directory to find notes."
   (let ((idir (propertize (file-name-as-directory dir) 'invisible t)))
-    `(:name     ,name
+    `(:name     ,(propertize name 'face 'consult-notes-sep)
       :narrow   ,char
       :category ,consult-notes-category
       :face     consult-file

@@ -115,7 +115,6 @@ modified time. Please see the function
           (file-size-human-readable (file-attribute-size (file-attributes file))))
          (time
           (consult-notes--time (org-roam-node-file-mtime node)))
-         ;; (time (consult-notes--time (file-attribute-modification-time attrs)))
          (links (caar (org-roam-db-query
                        [:select (funcall count source)
                         :from links
@@ -125,12 +124,12 @@ modified time. Please see the function
     (put-text-property 0 (length dir)   'face 'consult-notes-dir dir)
     (put-text-property 0 (length size)  'face 'consult-notes-size size)
     (put-text-property 0 (length time)  'face 'consult-notes-time time)
-    (concat (if (> links 0) (propertize (format "%3s" links) 'face 'consult-line-number) (propertize (format "%3s" "nil") 'face 'shadow))  " " (s-truncate 8 (format "%s" dir) "…") " " (format "%5s" size) "  " (format "%5s" time))))
+    (concat (if (> links 0) (propertize (format "%3s" links) 'face 'consult-notes-backlinks) (propertize (format "%3s" "nil") 'face 'shadow))  " " (s-truncate 8 (format "%s" dir) "…") " " (format "%5s" size) "  " (format "%5s" time))))
 
 ;;;; Org-Roam & Consult--Multi
 ;; Define sources for consult--multi
 (defvar consult-notes--org-roam-nodes
-  `(:name ,consult-notes-org-roam-node-name
+  `(:name ,(propertize consult-notes-org-roam-node-name 'face 'consult-notes-sep)
     :narrow ,consult-notes-org-roam-node-narrow-key
     :require-match t
     :category 'org-roam-node
@@ -143,7 +142,7 @@ modified time. Please see the function
   "Setup for `org-roam' and `consult--multi'.")
 
 (defvar consult-notes--org-roam-refs
-  `(:name ,consult-notes-org-roam-ref-name
+  `(:name ,(propertize consult-notes-org-roam-ref-name 'face 'consult-notes-sep)
     :narrow ,consult-notes-org-roam-ref-narrow-key
     :require-match t
     :category 'org-roam-ref
