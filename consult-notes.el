@@ -110,6 +110,25 @@ Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
 a relative age."
   :type 'integer)
 
+;;;; Faces
+;; Define faces used in consult-notes
+
+(defface consult-notes-name '((t (:inherit (warning) :weight light)))
+  "Face for name data in `consult-notes'."
+  :group 'faces)
+
+(defface consult-notes-size '((t (:inherit (warning) :weight light)))
+  "Face for size data in `consult-notes'."
+  :group 'faces)
+
+(defface consult-notes-time '((t (:inherit (warning) :weight light)))
+  "Face for time data in `consult-notes'."
+  :group 'faces)
+
+(defface consult-notes-dir '((t (:inherit (warning) :weight light)))
+  "Face for directory data in `consult-notes'."
+  :group 'faces)
+
 ;;;; Time/Date Functions
 ;; These are derived from Daniel Mendler's Marginalia package.
 ;; See https://github.com/minad/marginalia
@@ -170,9 +189,9 @@ time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
-    (put-text-property 0 (length name)  'face 'consult-separator name)
-    (put-text-property 0 (length fsize) 'face 'consult-key fsize)
-    (put-text-property 0 (length ftime) 'face 'consult-key ftime)
+    (put-text-property 0 (length name)  'face 'consult-notes-name name)
+    (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
+    (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
     (format "%s  %5s  %5s" name fsize ftime)))
 
 (defun consult-notes--sources-data-dirs ()

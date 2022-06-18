@@ -98,7 +98,7 @@ modified time. Please see the function
                         :where (= dest $s1)
                         :and (= type "id")]
                        (org-roam-node-id node)))))
-    (if (> count 0) (propertize (format "%3s" count) 'face 'consult-line-number)
+    (if (> count 0) (propertize (format "%3s" count) 'face 'default)
       (propertize (format "%3s" "nil") 'face 'shadow))))
 
 
@@ -122,9 +122,9 @@ modified time. Please see the function
                         :where (= dest $s1)
                         :and (= type "id")]
                        (org-roam-node-id node)))))
-    (put-text-property 0 (length dir)   'face 'consult-separator dir)
-    (put-text-property 0 (length size)  'face 'consult-key size)
-    (put-text-property 0 (length time)  'face 'consult-key time)
+    (put-text-property 0 (length dir)   'face 'consult-notes-dir dir)
+    (put-text-property 0 (length size)  'face 'consult-notes-size size)
+    (put-text-property 0 (length time)  'face 'consult-notes-time time)
     (concat (if (> links 0) (propertize (format "%3s" links) 'face 'consult-line-number) (propertize (format "%3s" "nil") 'face 'shadow))  " " (s-truncate 8 (format "%s" dir) "…") " " (format "%5s" size) "  " (format "%5s" time))))
 
 ;;;; Org-Roam & Consult--Multi
