@@ -192,8 +192,7 @@ and DIR is the directory to find notes."
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 (defun consult-notes-annotate-note (name cand)
-  "Annotate file CAND with its source NAME, size, and modification
-time."
+  "Annotate file CAND with its source NAME, size, and modification time."
   (let* ((attrs (file-attributes cand))
 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
@@ -225,7 +224,7 @@ time."
 
 ;;;###autoload
 (defun consult-notes-search-all ()
-  "Search all notes using ripgrep.
+  "Search all notes using ripgrep, if that is set.
 If ripgrep is not installed fall back to `consult-grep'."
   (interactive)
   (let ((consult-ripgrep-args consult-notes-ripgrep-args)

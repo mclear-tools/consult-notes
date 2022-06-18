@@ -52,7 +52,7 @@ key (for narrowing), and directory path. For example:
         ("Org Refile"      ?R "~/Dropbox/Work/projects/notebook/org-refile/")))
 #+end_src
 
-To set sources for =consult--multi= please see the instruction for adding [[https://github.com/minad/consult#multiple-sources][multiple
+To set sources for =consult--multi= please see the instructions for adding [[https://github.com/minad/consult#multiple-sources][multiple
 sources with consult]]. Set the variable =consult-notes-sources=. 
 
 *NOTE*: If you don't use any sources beyond that of files in directories, then you
@@ -156,6 +156,13 @@ If you use [[https://github.com/emacs-citar/citar][citar]] you can integrate sup
         (org-roam-node-open fnode)
       (message "No notes cite this reference."))))
 #+end_src
+
+* Related Packages
+- [[https://github.com/jgru/consult-org-roam][Consult-org-roam]] offers consult-completion/narrowing functionality related strictly to org-roam. 
+- [[https://github.com/jrblevin/deft][Deft]] provides dedicated buffer notes search/filtering
+- [[https://github.com/protesilaos/denote][Denote]] provides simple note creation with an efficient file-naming scheme
+- [[https://github.com/ymherklotz/emacs-zettelkasten][Emacs-zettelkasten]] provides a basis for a zettelkasten type notetaking system
+- [[https://github.com/localauthor/zk][Zk]] offers a dead-simple, feature-rich Zettelkasten implementation for Emacs
 
 * Acknowledgments
 
