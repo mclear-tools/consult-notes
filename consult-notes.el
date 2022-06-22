@@ -49,29 +49,15 @@
   :group 'consult-notes
   :type 'symbol)
 
-(defcustom consult-notes-data-dirs
-  '(("Notes" ?n "~/Notes/"))
+(defcustom consult-notes-sources
+  '(("Notes" ?n "~/Notes"))
   "Sources for `consult-notes' file search.
 
 There are three elements in the list. The first is a title
 string. The second is a narrowing key, and the third is a
-path (string)."
+directory path (string) containing note files."
   :group 'consult-notes
   :type '(list string key string))
-
-(defcustom consult-notes-sources nil
-  "Sources used by `consult-notes'.
-
-Directories of files will be pushed to this list from
-`consult-notes-data-dirs', but the user may add other sources as
-they wish, following the format provided by `consult--multi'."
-  :group 'consult-notes
-  :type '(repeat symbol))
-
-(defcustom consult-notes-all-notes "~/Notes/"
-  "Dir for (rip)grep of all notes."
-  :group 'consult-notes
-  :type 'directory)
 
 (defcustom consult-notes-annotate-note-function #'consult-notes-annotate-note
   "Function to call for annotations in `consult-notes'.
@@ -201,19 +187,23 @@ and DIR is the directory to find notes."
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
     (format "%s  %5s  %5s" name fsize ftime)))
 
-(defun consult-notes--sources-data-dirs ()
-  "Add generated `consult--multi' sources to list of sources."
+(defvar consult-notes--all-sources nil
+  "List of all sources for use with consult-notes.
+This is an internal variable. The user will typically only interact with `consult-notes-sources'.")
+
+(defun consult-notes--make-all-sources ()
+  "Add generated `consult--multi' sources to list of all sources."
   (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes--make-source s))
-		                 consult-notes-data-dirs)))
+		                 consult-notes-sources)))
     (dolist (i sources)
-      (add-to-list 'consult-notes-sources i))))
+      (add-to-list 'consult-notes--all-sources i))))
 
 ;;;###autoload
 (defun consult-notes (&optional sources)
   "Find a file in a notes directory with consult-multi, or from SOURCES."
   (interactive)
-  (consult-notes--sources-data-dirs)
-  (let ((selected (consult--multi (or sources consult-notes-sources)
+  (consult-notes--make-all-sources)
+  (let ((selected (consult--multi (or sources consult-notes--all-sources)
                                   :require-match
                                   (confirm-nonexistent-file-or-buffer)
                                   :prompt "Notes: "

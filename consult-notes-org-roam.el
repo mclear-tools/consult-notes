@@ -215,21 +215,19 @@ whether the mode should be enabled or disabled."
   :group 'consult-notes
   :global t
   ;; Add or remove advice when enabled respectively disabled
-  (if consult-notes-org-roam-mode
-      (progn
-        ;; Save previous value of display-template
-        (setq org-roam-old-display-template org-roam-node-display-template)
-        ;; Set new value
-        (setq org-roam-node-display-template consult-notes-org-roam-template)
-        ;; Add org-roam consult--multi integration
-        (add-to-list 'consult-notes-sources 'consult-notes--org-roam-nodes 'append)
-        (add-to-list 'consult-notes-sources 'consult-notes--org-roam-refs 'append))
-
-    (progn
-      ;; Reset display template value
-      (setq org-roam-node-display-template org-roam-old-display-template)
-      (delete 'consult-notes--org-roam-nodes consult-notes-sources)
-      (delete 'consult-notes--org-roam-refs  consult-notes-sources))))
+  (cond (consult-notes-org-roam-mode
+         ;; Save previous value of display-template
+         (setq org-roam-old-display-template org-roam-node-display-template)
+         ;; Set new value
+         (setq org-roam-node-display-template consult-notes-org-roam-template)
+         ;; Add org-roam consult--multi integration
+         (add-to-list 'consult-notes--all-sources 'consult-notes--org-roam-nodes 'append)
+         (add-to-list 'consult-notes--all-sources 'consult-notes--org-roam-refs 'append))
+        (t
+         ;; Reset display template value
+         (setq org-roam-node-display-template org-roam-old-display-template)
+         (delete 'consult-notes--org-roam-nodes consult-notes--all-sources)
+         (delete 'consult-notes--org-roam-refs  consult-notes--all-sources))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
