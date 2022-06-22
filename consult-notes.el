@@ -50,7 +50,7 @@
   :type 'symbol)
 
 (defcustom consult-notes-data-dirs
-  '(("Org" ?o org-agenda-files))
+  '(("Notes" ?n "~/Notes/"))
   "Sources for `consult-notes' file search.
 
 There are three elements in the list. The first is a title
@@ -68,10 +68,10 @@ they wish, following the format provided by `consult--multi'."
   :group 'consult-notes
   :type '(repeat symbol))
 
-(defcustom consult-notes-all-notes ""
-  "Dir for grep of all notes."
+(defcustom consult-notes-all-notes "~/Notes/"
+  "Dir for (rip)grep of all notes."
   :group 'consult-notes
-  :type 'string)
+  :type 'directory)
 
 (defcustom consult-notes-annotate-note-function #'consult-notes-annotate-note
   "Function to call for annotations in `consult-notes'.
@@ -93,7 +93,7 @@ details."
   :group 'consult-notes
   :type 'string)
 
-(defcustom consult-notes-grep-args "grep --null --line-buffered --color=never --ignore-case   --exclude-dir=.git --line-number -I -R -S ."
+(defcustom consult-notes-grep-args "grep --null --line-buffered --color=never --ignore-case --exclude-dir=.git --line-number -I -R ."
   "Arguments for `grep' and `consult-notes-search-all'."
   :group 'consult-notes
   :type 'string)
