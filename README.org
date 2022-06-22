@@ -28,16 +28,11 @@ is pretty easy:
 (use-package consult-notes
   :straight (:type git :host github :repo "mclear-tools/consult-notes")
   :commands (consult-notes
-             consult-notes-search-all
+             consult-notes-search-in-all-notes
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
-  (setq consult-notes-data-dirs '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
-  ;; Define sources 
-  (setq consult-notes-sources '(consult-notes--data-dirs
-                                consult-notes--org-roam-nodes
-                                consult-notes--org-roam-refs
-                                my-other-notes--source))
+  (setq consult-notes-sources '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
   (consult-notes-org-roam-mode)) ;; Set org-roam integration
 #+end_src
 
