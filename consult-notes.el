@@ -74,13 +74,13 @@ details."
   :type 'boolean)
 
 (defcustom consult-notes-ripgrep-args  "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
-   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed ."
-  "Arguments for `ripgrep' and `consult-notes-search-all'."
+   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed"
+  "Arguments for `ripgrep' and `consult-notes-search-in-all-notes'."
   :group 'consult-notes
   :type 'string)
 
-(defcustom consult-notes-grep-args "grep --null --line-buffered --color=never --ignore-case --exclude-dir=.git --line-number -I -R ."
-  "Arguments for `grep' and `consult-notes-search-all'."
+(defcustom consult-notes-grep-args "grep --null --line-buffered --color=never --ignore-case --exclude-dir=.git --line-number -I -R"
+  "Arguments for `grep' and `consult-notes-search-in-all-notes'."
   :group 'consult-notes
   :type 'string)
 
@@ -116,11 +116,11 @@ a relative age."
   :group 'faces)
 
 (defface consult-notes-backlinks '((t (:inherit (warning) :weight light)))
-  "Face for directory data in `consult-notes'."
+  "Face for backlinks data in `consult-notes'."
   :group 'faces)
 
 (defface consult-notes-sep '((t (:inherit (bold))))
-  "Face for directory data in `consult-notes'."
+  "Face for separator in `consult-notes'."
   :group 'faces)
 
 ;;;; Time/Date Functions
@@ -213,17 +213,24 @@ This is an internal variable. The user will typically only interact with `consul
       (consult--file-action (car selected)))))
 
 ;;;###autoload
-(defun consult-notes-search-all ()
-  "Search all notes using ripgrep, if that is set.
-If ripgrep is not installed fall back to `consult-grep'."
+(defun consult-notes-search-in-all-notes ()
+  "Search in all notes using `grep' or `ripgrep'.
+Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
-  (let ((consult-ripgrep-args consult-notes-ripgrep-args)
-        (consult-grep-args consult-notes-grep-args))
+  (let* ((sources
+          (mapcar 'expand-file-name (flatten-tree (mapcar 'cddr consult-notes-sources))))
+         (dirs (combine-and-quote-strings sources))
+         (roam (expand-file-name org-roam-directory))
+         (consult-grep-args
+          (concat consult-notes-grep-args " " dirs " " (when consult-notes-org-roam-mode
+                                                         roam)))
+         (consult-ripgrep-args
+          (concat consult-notes-ripgrep-args " " dirs " " (when consult-notes-org-roam-mode roam))))
     (if consult-notes-use-rg
-        (consult-ripgrep consult-notes-all-notes)
-      (consult-grep consult-notes-all-notes))))
+        (consult-ripgrep)
+      (consult-grep))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
-(provide 'consult-notes)
+    (provide 'consult-notes)
 ;;; consult-notes.el ends here
