@@ -185,7 +185,7 @@ and DIR is the directory to find notes."
     (put-text-property 0 (length name)  'face 'consult-notes-name name)
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-    (format "%s  %5s  %5s" name fsize ftime)))
+    (format "%12s  %5s  %8s" name fsize ftime)))
 
 (defvar consult-notes--all-sources nil
   "List of all sources for use with consult-notes.
