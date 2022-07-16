@@ -3,8 +3,10 @@ to integrate directories of files (notes) from multiple sources and to provide
 easy narrowing via =consult=. But notes can be in principle added from any source
 that can be integrated with consult. 
 
-It can be used on its own or in tandem with org-roam (see the minor-mode in
-=consult-notes-org-roam.el=. 
+=consult-notes= can be used with any directory (or directories) of note files and
+is useful for note systems like [[https://github.com/localauthor/zk][zk]] or [[https://github.com/protesilaos/denote][denote]]. It also plays well with [[https://github.com/org-roam/org-roam][org-roam]],
+where not only files but also headings can count as "nodes" or notes (see the
+minor-mode in =consult-notes-org-roam.el=).
 
 Consult-notes provides annotations on note candidates in the minibuffer
 (currently directory, file size, last-modfied time, and (for org-roam) tags and

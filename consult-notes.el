@@ -219,8 +219,10 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
   (let* ((sources
           (mapcar 'expand-file-name (flatten-tree (mapcar 'cddr consult-notes-sources))))
-         (dirs (combine-and-quote-strings sources))
-         (roam (expand-file-name org-roam-directory))
+         (dirs
+          (combine-and-quote-strings sources))
+         (roam
+          (expand-file-name org-roam-directory))
          (consult-grep-args
           (concat consult-notes-grep-args " " dirs " " (when consult-notes-org-roam-mode
                                                          roam)))
