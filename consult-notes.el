@@ -221,18 +221,15 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
           (mapcar 'expand-file-name (flatten-tree (mapcar 'cddr consult-notes-sources))))
          (dirs
           (combine-and-quote-strings sources))
-         (roam
-          (expand-file-name org-roam-directory))
          (consult-grep-args
-          (concat consult-notes-grep-args " " dirs " " (when consult-notes-org-roam-mode
-                                                         roam)))
+          (concat consult-notes-grep-args " " dirs " " (when consult-notes-org-roam-mode (expand-file-name org-roam-directory))))
          (consult-ripgrep-args
-          (concat consult-notes-ripgrep-args " " dirs " " (when consult-notes-org-roam-mode roam))))
+          (concat consult-notes-ripgrep-args " " dirs " " (when consult-notes-org-roam-mode (expand-file-name org-roam-directory)))))
     (if consult-notes-use-rg
         (consult-ripgrep)
       (consult-grep))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
-    (provide 'consult-notes)
+(provide 'consult-notes)
 ;;; consult-notes.el ends here
