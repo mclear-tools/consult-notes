@@ -213,6 +213,7 @@ By enabling `consult-notes-org-roam-mode' the functions
 `org-roam-node-read' and `org-roam-ref-read' are overriden by
 consults-org-roam's equivalents. Optional argument ARG indicates
 whether the mode should be enabled or disabled."
+  :init-value nil
   :lighter nil
   :group 'consult-notes
   :global t

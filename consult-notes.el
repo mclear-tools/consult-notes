@@ -96,9 +96,6 @@ Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
 a relative age."
   :type 'integer)
 
-(defvar consult-notes-org-roam-mode
-  "This is set to `t' if the minor mode `consult-notes-org-roam-mode' is loaded.")
-
 ;;;; Faces
 ;; Define faces used in consult-notes
 
@@ -194,6 +191,13 @@ and DIR is the directory to find notes."
   "List of all sources for use with `consult-notes'.
 This is an internal variable. The user will typically only
 interact with `consult-notes-sources'.")
+
+;; Define these for consult-notes-search-in-all-notes to avoid warnings at
+;; byte-compile time
+(defvar consult-notes-org-roam-mode
+  "This is set to `t' if the minor mode `consult-notes-org-roam-mode' is loaded.")
+(defvar org-roam-directory
+  "When using `consult-notes-org-roam-mode' the user should have this already set.")
 
 (defun consult-notes--make-all-sources ()
   "Add generated `consult--multi' sources to list of all sources."
