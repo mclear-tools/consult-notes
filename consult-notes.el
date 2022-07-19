@@ -96,6 +96,9 @@ Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
 a relative age."
   :type 'integer)
 
+(defvar consult-notes-org-roam-mode
+  "This is set to `t' if the minor mode `consult-notes-org-roam-mode' is loaded.")
+
 ;;;; Faces
 ;; Define faces used in consult-notes
 
