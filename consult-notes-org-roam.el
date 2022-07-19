@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.2
-;; Package-Requires: ((emacs "27.1") (consult "0.17") (s.el "1.12.0"))
+;; Package-Requires: ((emacs "27.1") (consult "0.17") (s.el "1.12.0") (dash "2.19"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -33,8 +33,30 @@
 ;;; Code:
 
 (require 'consult-notes)
-(require 'org-roam)
 (require 's)
+(require 'dash)
+(when (locate-library "org-roam")
+  (require 'org-roam))
+
+;;;; Declare Roam Vars & Functions
+(defvar org-roam-node-display-template nil)
+
+(declare-function org-roam-backlink-source-node "org-roam")
+(declare-function org-roam-node-visit "org-roam")
+(declare-function org-roam-node-create "org-roam")
+(declare-function org-id-get-create "org-roam")
+(declare-function org-roam-node-from-id "org-roam")
+(declare-function org-roam-backlinks-get "org-roam")
+(declare-function org-roam-backlink-target-node "org-roam")
+(declare-function org-roam-ref-read--completions "org-roam")
+(declare-function org-roam-node-open "org-roam")
+(declare-function org-roam-node-title "org-roam")
+(declare-function org-roam-node-read--completions "org-roam")
+(declare-function org-roam-node-from-title-or-alias "org-roam")
+(declare-function org-roam-node-id "org-roam")
+(declare-function org-roam-db-query "org-roam")
+(declare-function org-roam-node-file-mtime "org-roam")
+(declare-function org-roam-node-file "org-roam")
 
 ;;;; Variables
 (defcustom consult-notes-org-roam-template
@@ -138,10 +160,10 @@ modified time. Please see the function
     :category 'org-roam-node
     :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
-                         (title (mapcar #'org-roam-node-title node)))
-                    (progn title)))
+                              (title (mapcar #'org-roam-node-title node)))
+                         (progn title)))
     :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
-                         (org-roam-node-open node))))
+                              (org-roam-node-open node))))
   "Setup for `org-roam' and `consult--multi'.")
 
 (defvar consult-notes--org-roam-refs
@@ -175,7 +197,7 @@ provided, override the list of capture templates (see
   "Navigate org-roam notes by link relation.
 
 With universal ARG tries to navigate the tags of the current
-note. Optionally takes a selected NOTE and filepaths CHOICES."
+note. Optionally takes a selected NODE and filepaths CHOICES."
   (interactive "P")
   (let* ((choices
           (or choices
