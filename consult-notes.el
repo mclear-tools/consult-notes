@@ -191,8 +191,9 @@ and DIR is the directory to find notes."
     (format "%12s  %5s  %8s" name fsize ftime)))
 
 (defvar consult-notes--all-sources nil
-  "List of all sources for use with consult-notes.
-This is an internal variable. The user will typically only interact with `consult-notes-sources'.")
+  "List of all sources for use with `consult-notes'.
+This is an internal variable. The user will typically only
+interact with `consult-notes-sources'.")
 
 (defun consult-notes--make-all-sources ()
   "Add generated `consult--multi' sources to list of all sources."

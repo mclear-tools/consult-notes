@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.2
-;; Package-Requires: ((emacs "27.1") (consult "0.17"))
+;; Package-Requires: ((emacs "27.1") (consult "0.17") (s.el "1.12.0"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -34,6 +34,7 @@
 
 (require 'consult-notes)
 (require 'org-roam)
+(require 's)
 
 ;;;; Variables
 (defcustom consult-notes-org-roam-template
@@ -76,6 +77,9 @@ modified time. Please see the function
   :group 'consult-notes
   :type 'key)
 
+(defvar org-roam-old-display-template
+  "This will contain the old display template settings when `consult-notes-org-roam-mode' is loaded.")
+
 ;;;; Functions
 ;; Display functions
 (cl-defmethod org-roam-node-sizes ((node org-roam-node))
@@ -103,12 +107,11 @@ modified time. Please see the function
 
 
 (defun consult-notes-org-roam-annotate (cand)
+  "Annotate CAND with useful info."
   (let* ((node
           (org-roam-node-from-title-or-alias cand))
          (file
           (org-roam-node-file node))
-         (attrs
-          (file-attributes file))
          (dir
           (file-name-nondirectory (directory-file-name (file-name-directory file))))
          (size
@@ -174,8 +177,7 @@ provided, override the list of capture templates (see
 With universal ARG tries to navigate the tags of the current
 note. Optionally takes a selected NOTE and filepaths CHOICES."
   (interactive "P")
-  (let* ((depth (if (numberp arg) arg 1))
-         (choices
+  (let* ((choices
           (or choices
               (when arg
                 (-map #'org-roam-backlink-target-node (org-roam-backlinks-get (org-roam-node-from-id (or (ignore-errors (org-roam-node-id node))
