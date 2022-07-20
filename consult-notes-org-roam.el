@@ -35,8 +35,9 @@
 (require 'consult-notes)
 (require 's)
 (require 'dash)
-(when (locate-library "org-roam")
-  (require 'org-roam))
+(if (locate-library "org-roam")
+    (require 'org-roam)
+  (error "Org-roam not found!"))
 
 ;;;; Declare Roam Vars & Functions
 (defvar org-roam-node-display-template nil)
