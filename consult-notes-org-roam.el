@@ -3,7 +3,6 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.2
-;; Package-Requires: ((emacs "27.1") (consult "0.17") (s "1.12.0") (dash "2.19"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -28,7 +27,8 @@
 
 ;;; Commentary:
 
-;; Manage your org-roam notes with consult.
+;; Manage your org-roam notes with consult. Please note that user must have
+;; installed org-roam for `consult-notes-org-roam' to function.
 
 ;;; Code:
 

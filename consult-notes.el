@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.2
-;; Package-Requires: ((emacs "28.1") (consult "0.17") (marginalia) (embark))
+;; Package-Requires: ((emacs "28.1") (consult "0.17") (s "1.12.0") (dash "2.19"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -201,7 +201,7 @@ interact with `consult-notes-sources'.")
 
 (defun consult-notes--make-all-sources ()
   "Add generated `consult--multi' sources to list of all sources."
-  (let ((sources (mapcar #'(lambda (s) (apply 'consult-notes--make-source s))
+  (let ((sources (mapcar (lambda (s) (apply #'consult-notes--make-source s))
 		                 consult-notes-sources)))
     (dolist (i sources)
       (add-to-list 'consult-notes--all-sources i))))
@@ -226,7 +226,7 @@ interact with `consult-notes-sources'.")
 Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
   (let* ((sources
-          (mapcar 'expand-file-name (flatten-tree (mapcar 'cddr consult-notes-sources))))
+          (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-sources))))
          (dirs
           (combine-and-quote-strings sources))
          (consult-grep-args
