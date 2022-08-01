@@ -3,7 +3,7 @@
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
 ;; Version: 0.2
-;; Package-Requires: ((emacs "28.1") (consult "0.17") (s "1.12.0") (dash "2.19"))
+;; Package-Requires: ((emacs "27.1") (consult "0.17") (s "1.12.0") (dash "2.19"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -192,13 +192,6 @@ and DIR is the directory to find notes."
 This is an internal variable. The user will typically only
 interact with `consult-notes-sources'.")
 
-;; Define these for consult-notes-search-in-all-notes to avoid warnings at
-;; byte-compile time
-(defvar consult-notes-org-roam-mode
-  "This is set to `t' if the minor mode `consult-notes-org-roam-mode' is loaded.")
-(defvar org-roam-directory
-  "When using `consult-notes-org-roam-mode' the user should have this already set.")
-
 (defun consult-notes--make-all-sources ()
   "Add generated `consult--multi' sources to list of all sources."
   (let ((sources (mapcar (lambda (s) (apply #'consult-notes--make-source s))
@@ -230,9 +223,13 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
          (dirs
           (combine-and-quote-strings sources))
          (consult-grep-args
-          (concat consult-notes-grep-args " " dirs " " (when consult-notes-org-roam-mode (expand-file-name org-roam-directory))))
+          (concat consult-notes-grep-args " " dirs " " (when
+                                                           (bound-and-true-p consult-notes-org-roam-mode)
+                                                         (expand-file-name org-roam-directory))))
          (consult-ripgrep-args
-          (concat consult-notes-ripgrep-args " " dirs " " (when consult-notes-org-roam-mode (expand-file-name org-roam-directory)))))
+          (concat consult-notes-ripgrep-args " " dirs " " (when
+                                                              (bound-and-true-p consult-notes-org-roam-mode)
+                                                            (expand-file-name org-roam-directory)))))
     (if consult-notes-use-rg
         (consult-ripgrep)
       (consult-grep))))

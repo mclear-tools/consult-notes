@@ -40,7 +40,9 @@
   (error "Org-roam not found!"))
 
 ;;;; Declare Roam Vars & Functions
-(defvar org-roam-node-display-template nil)
+;; Defined for byte-compilation. These will be set when org-roam is loaded
+(defvar org-roam-node-display-template)
+(defvar org-roam-directory)
 
 (declare-function org-roam-backlink-source-node "org-roam")
 (declare-function org-roam-node-visit "org-roam")
@@ -100,8 +102,9 @@ modified time. Please see the function
   :group 'consult-notes
   :type 'key)
 
-(defvar org-roam-old-display-template
-  "This will contain the old display template settings when `consult-notes-org-roam-mode' is loaded.")
+(defvar consult-notes-org-roam--old-display-template nil
+  "This will contain the old display template settings when `consult-notes-org-roam-mode' is loaded.
+For internal use only.")
 
 ;;;; Functions
 ;; Display functions
@@ -154,20 +157,20 @@ modified time. Please see the function
 
 ;;;; Org-Roam & Consult--Multi
 ;; Define sources for consult--multi
-(defvar consult-notes--org-roam-nodes
+(defvar consult-notes-org-roam--nodes
   `(:name ,(propertize consult-notes-org-roam-node-name 'face 'consult-notes-sep)
     :narrow ,consult-notes-org-roam-node-narrow-key
     :require-match t
     :category 'org-roam-node
     :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
-                              (title (mapcar #'org-roam-node-title node)))
-                         (progn title)))
+                         (title (mapcar #'org-roam-node-title node)))
+                    (progn title)))
     :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
-                              (org-roam-node-open node))))
+                         (org-roam-node-open node))))
   "Setup for `org-roam' and `consult--multi'.")
 
-(defvar consult-notes--org-roam-refs
+(defvar consult-notes-org-roam--refs
   `(:name ,(propertize consult-notes-org-roam-ref-name 'face 'consult-notes-sep)
     :narrow ,consult-notes-org-roam-ref-narrow-key
     :require-match t
@@ -243,17 +246,17 @@ whether the mode should be enabled or disabled."
   ;; Add or remove advice when enabled respectively disabled
   (cond (consult-notes-org-roam-mode
          ;; Save previous value of display-template
-         (setq org-roam-old-display-template org-roam-node-display-template)
+         (setq consult-notes-org-roam--old-display-template org-roam-node-display-template)
          ;; Set new value
          (setq org-roam-node-display-template consult-notes-org-roam-template)
          ;; Add org-roam consult--multi integration
-         (add-to-list 'consult-notes--all-sources 'consult-notes--org-roam-nodes 'append)
-         (add-to-list 'consult-notes--all-sources 'consult-notes--org-roam-refs 'append))
+         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--nodes 'append)
+         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--refs 'append))
         (t
          ;; Reset display template value
-         (setq org-roam-node-display-template org-roam-old-display-template)
-         (delete 'consult-notes--org-roam-nodes consult-notes--all-sources)
-         (delete 'consult-notes--org-roam-refs  consult-notes--all-sources))))
+         (setq org-roam-node-display-template consult-notes-org-roam--old-display-template)
+         (delete 'consult-notes-org-roam--nodes consult-notes--all-sources)
+         (delete 'consult-notes-org-roam--refs  consult-notes--all-sources))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
