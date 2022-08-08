@@ -103,8 +103,9 @@ modified time. Please see the function
   :type 'key)
 
 (defvar consult-notes-org-roam--old-display-template nil
-  "This will contain the old display template settings when `consult-notes-org-roam-mode' is loaded.
-For internal use only.")
+  "For internal use only.
+Set the old display template value when
+`consult-notes-org-roam-mode' is loaded.")
 
 ;;;; Functions
 ;; Display functions
@@ -128,7 +129,8 @@ For internal use only.")
                         :where (= dest $s1)
                         :and (= type "id")]
                        (org-roam-node-id node)))))
-    (if (> count 0) (propertize (format "%3s" count) 'face 'default)
+    (if (> count 0)
+        (propertize (format "%3s" count) 'face 'default)
       (propertize (format "%3s" "nil") 'face 'shadow))))
 
 

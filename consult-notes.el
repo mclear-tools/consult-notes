@@ -96,6 +96,9 @@ Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
 a relative age."
   :type 'integer)
 
+;; Placate the byte-compiler
+(defvar org-roam-directory)
+
 ;;;; Faces
 ;; Define faces used in consult-notes
 
