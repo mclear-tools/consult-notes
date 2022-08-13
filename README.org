@@ -1,3 +1,6 @@
+#+html: <a href="https://www.gnu.org/software/emacs/"><img alt="GNU Emacs" src="https://github.com/minad/corfu/blob/screenshots/emacs.svg?raw=true"/></a>
+#+html:    <a href="https://melpa.org/#/consult-notes"><img alt="MELPA" src="https://melpa.org/packages/consult-notes-badge.svg"/></a>
+
 This is a package for easily selecting notes via consult. It's most basic use is
 to integrate directories of files (notes) and to provide easy narrowing via
 =consult=. But notes can be in principle added from any source that can be
