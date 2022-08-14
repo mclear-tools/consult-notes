@@ -16,18 +16,14 @@ Consult-notes also provides annotations on note candidates in the minibuffer
 number of backlinks. Consult-notes may be configured to act on selected
 candidates via [[https://github.com/oantolin/embark][embark]] (see below). 
 
-NOTE: This package is still in a fluctuating state, and may change in
-potentially breaking ways, so please update with care!
-
 #+ATTR_HTML: :width 85%
 [[file:screenshots/notes-screenshot1.png]]
 #+ATTR_HTML: :width 85%
 [[file:screenshots/notes-screenshot2.png]]
 
 * Installation
-Eventually this will be available on MELPA, but in the meantime you'll need to
-install the package from this repo. Installation with use-package and straight
-is pretty easy:
+This package is available on MELPA. Or you can install the package from this
+repo. Installation with use-package and straight is pretty easy:
 
 #+begin_src emacs-lisp
 (use-package consult-notes
