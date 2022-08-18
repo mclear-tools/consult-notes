@@ -70,10 +70,13 @@ You may customize narrowing keys, separator names and annotations used. Please
 see =customize-group RET 'consult-notes' RET= (or the relevant `.el' files) for
 details. The faces used by consult-notes are all similarly customizable.
 
-To search all your notes with grep (or ripgrep if installed -- see
-=consult-notes-use-rg= variable) use the command
-=consult-notes-search-in-all-notes=. This will employ grep/ripgrep for searching
-terms in all the directories set in =consult-notes-sources=.
+Though consult-notes by default searches only for names of files (or if using
+org-roam, the names of nodes), you may also easily search the contents of all
+notes in =consult-notes-sources= using the function
+=consult-notes-search-in-all-notes=. This uses =consult-grep= or =consult-ripgrep= as
+its basis (see the =consult-notes-use-rg= variable). You can set the arguments for
+the grep or ripgrep search with the variables =consult-notes-grep-args= and
+=consult-notes-ripgrep-args= respectively.
 
 * Org-Roam
 
