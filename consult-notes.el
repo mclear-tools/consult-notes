@@ -96,6 +96,11 @@ Set to `most-positive-fixnum' to always use a relative age, or 0 to never show
 a relative age."
   :type 'integer)
 
+(defcustom consult-notes-file-match "[^.].*[.].+[^~]$"'
+  "Default format for `consult-notes' open function."
+  :group 'consult-notes
+  :type 'string)
+
 ;; Placate the byte-compiler
 (defvar org-roam-directory)
 
@@ -177,7 +182,7 @@ and DIR is the directory to find notes."
       :annotate ,(apply-partially consult-notes-annotate-note-function name)
       :items    ,(lambda () (mapcar (lambda (f) (concat idir f))
 				               ;; filter files that glob *.*
-				               (directory-files dir nil "[^.].*[.].+")))
+				               (directory-files dir nil consult-notes-file-match)))
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 (defun consult-notes-annotate-note (name cand)
