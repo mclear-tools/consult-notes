@@ -6,15 +6,17 @@ to integrate directories of files (notes) and to provide easy narrowing via
 =consult=. But notes can be in principle added from any source that can be
 integrated with consult.
 
-=consult-notes= can be used with any directory (or directories) of note files and
-is useful for note systems like [[https://github.com/localauthor/zk][zk]] or [[https://github.com/protesilaos/denote][denote]]. It also provides first-class
-integration with [[https://github.com/org-roam/org-roam][org-roam]], where not only files but also org /headings/ can count
-as "nodes" or notes.
+=consult-notes= can be used with any directory (or directories) of note files. It
+easily integrates with note systems like [[https://github.com/localauthor/zk][zk]] or [[https://github.com/protesilaos/denote][denote]]. It also provides
+first-class integration with [[https://github.com/org-roam/org-roam][org-roam]], where not only files but also org
+/headings/ can count as "nodes" or notes.
 
 Consult-notes also provides annotations on note candidates in the minibuffer
-(currently directory, file size, last-modfied time, and, for org-roam, tags and
-number of backlinks. Consult-notes may be configured to act on selected
-candidates via [[https://github.com/oantolin/embark][embark]] (see below). 
+(defaults are: directory, file size, last-modified time; denote integration
+substitutes keyword for directory; org-roam integration includes tags and number
+of backlinks). Consult-notes may be configured to act on selected candidates via
+[[https://github.com/oantolin/embark][embark]] (see below). For other customizations please consult the options via =M-x
+customize-group consult-notes=.
 
 #+ATTR_HTML: :width 85%
 [[file:screenshots/notes-screenshot1.png]]
@@ -30,11 +32,14 @@ repo. Installation with use-package and straight is pretty easy:
   :straight (:type git :host github :repo "mclear-tools/consult-notes")
   :commands (consult-notes
              consult-notes-search-in-all-notes
+             ;; if using org-roam 
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
   (setq consult-notes-sources '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
-  (consult-notes-org-roam-mode)) ;; Set org-roam integration
+  ;; Set org-roam integration OR denote integration
+    (when (locate-library "denote")
+  (consult-notes-denote-mode)))
 #+end_src
 
 * Usage
@@ -54,29 +59,40 @@ integrated consult completion buffer. To narrow to a particular source, use its
 designated narrowing key.
 
 *NOTE*: If you don't use any sources beyond that of files in directories, then you
-don't need to set anything other than =consult-notes-sources=. Org-roam sources
-are set by using the minor-mode =consult-notes-org-roam-mode= (see below). On the
-other hand, if you /do/ want to integrate other different kinds of sources (e.g.
-bookmarks or buffers) into =consult-notes= then please see the instructions for
-adding [[https://github.com/minad/consult#multiple-sources][multiple sources with consult]]. To add an additional non-directory source
-one should do so by means of =add-to-list= in one's config, e.g.
+don't need to set anything other than =consult-notes-sources=. Org-roam or denote
+sources are set by using the relevant minor-mode (see below). However, if you /do/
+want to integrate other different kinds of sources (e.g. bookmarks or buffers)
+into =consult-notes= then please see the instructions for adding [[https://github.com/minad/consult#multiple-sources][multiple sources
+with consult]]. To add an additional non-directory source one should do so by
+means of =add-to-list= in one's config, e.g.
 
-  #+begin_src emacs-lisp
+#+begin_src emacs-lisp
 (with-eval-after-load 'consult-notes
     (add-to-list 'consult-notes--all-sources 'my-notes--additional-source 'append))
-  #+end_src
+#+end_src
   
 You may customize narrowing keys, separator names and annotations used. Please
 see =customize-group RET 'consult-notes' RET= (or the relevant `.el' files) for
 details. The faces used by consult-notes are all similarly customizable.
 
-Though consult-notes by default searches only for names of files (or if using
-org-roam, the names of nodes), you may also easily search the contents of all
-notes in =consult-notes-sources= using the function
+Though consult-notes by default searches only for names of files (though see the
+minor modes for denote and org-roam integration), you may also easily search the
+(line) contents of all notes in =consult-notes-sources= using the function
 =consult-notes-search-in-all-notes=. This uses =consult-grep= or =consult-ripgrep= as
 its basis (see the =consult-notes-use-rg= variable). You can set the arguments for
 the grep or ripgrep search with the variables =consult-notes-grep-args= and
 =consult-notes-ripgrep-args= respectively.
+
+* Denote
+[[https://github.com/protesilaos/denote][Denote]] may be used in conjunction with consult-notes in one of two ways. You can
+simply set one or more directories containing your denote notes via the
+=consult-notes-sources= variable as described above, or you can turn on the minor
+mode =(=consult-notes-denote-mode=), which does three things. First, it adds your
+=denote-directory= files to =consult-notes-sources=. Second, it sets the display of
+denote files in consult slightly differently, in the format of =ID Title
+#keywords size date modified=. ID, title, and keywords are all searchable. Third,
+the minor mode sets the default function when there is no match to create a
+denote note. Turning off the minor mode resets the defaults.
 
 * Org-Roam
 
@@ -89,7 +105,7 @@ integrated with consult-notes.
 
 So, if you want to integrate consult-notes with org-roam, be sure to call the
 minor-mode integration via the function =(consult-notes-org-roam-mode)=. This sets
-up a minor that provides some useful functions to integrate search of org-roam
+up a minor mode providing some useful functions to integrate search of org-roam
 nodes and of org-roam references with the =consult-notes= search and display
 functions. It also sets the org-roam display interface to look like that of the
 consult-notes interface when used apart from consult (e.g. in calling

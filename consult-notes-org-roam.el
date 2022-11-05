@@ -35,9 +35,8 @@
 (require 'consult-notes)
 (require 's)
 (require 'dash)
-(if (locate-library "org-roam")
-    (require 'org-roam)
-  (error "Org-roam not found!"))
+(unless (require 'org-roam nil 'noerror)
+  (message "Org-roam not found! Please ensure that it is installed."))
 
 ;;;; Declare Roam Vars & Functions
 ;; Defined for byte-compilation. These will be set when org-roam is loaded
@@ -231,34 +230,6 @@ note. Optionally takes a selected NODE and filepaths CHOICES."
     (if (equal node next-node)
         (org-roam-node-visit node)
       (consult-notes-org-roam-find-node-relation nil next-node (cons next-node (-map #'org-roam-backlink-source-node (org-roam-backlinks-get next-node)))))))
-
-;; Define a minor-mode for consult-notes & org-roam
-;;;###autoload
-(define-minor-mode consult-notes-org-roam-mode
-  "Toggle `consult-notes-org-roam-mode' to integrate consult with org-roam.
-
-By enabling `consult-notes-org-roam-mode' the functions
-`org-roam-node-read' and `org-roam-ref-read' are overriden by
-consults-org-roam's equivalents. Optional argument ARG indicates
-whether the mode should be enabled or disabled."
-  :init-value nil
-  :lighter nil
-  :group 'consult-notes
-  :global t
-  ;; Add or remove advice when enabled respectively disabled
-  (cond (consult-notes-org-roam-mode
-         ;; Save previous value of display-template
-         (setq consult-notes-org-roam--old-display-template org-roam-node-display-template)
-         ;; Set new value
-         (setq org-roam-node-display-template consult-notes-org-roam-template)
-         ;; Add org-roam consult--multi integration
-         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--nodes 'append)
-         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--refs 'append))
-        (t
-         ;; Reset display template value
-         (setq org-roam-node-display-template consult-notes-org-roam--old-display-template)
-         (delete 'consult-notes-org-roam--nodes consult-notes--all-sources)
-         (delete 'consult-notes-org-roam--refs  consult-notes--all-sources))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

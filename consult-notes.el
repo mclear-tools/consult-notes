@@ -101,6 +101,11 @@ a relative age."
   :group 'consult-notes
   :type 'string)
 
+(defcustom consult-notes-file-action 'consult--file-action
+  "Default action for `consult-notes' open function when no match is found."
+  :group 'consult-notes
+  :type 'function)
+
 ;; Placate the byte-compiler
 (defvar org-roam-directory)
 
@@ -180,10 +185,33 @@ and DIR is the directory to find notes."
       :category ,consult-notes-category
       :face     consult-file
       :annotate ,(apply-partially consult-notes-annotate-note-function name)
+      ;; :items ,(lambda ()
+      ;;           (let* ((marginalia-align-offset 0)
+      ;;                  (max-width 0)
+      ;;                  (marginalia-align 'center))
+      ;;             (mapcar (lambda (f)
+      ;;                       (let ((current-width (string-width name)))
+      ;;                         (when (> current-width max-width)
+      ;;                           (setq max-width current-width)))
+      ;;                       (concat idir f))
+      ;;                     ;; (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
+      ;;                     (directory-files dir nil consult-notes-file-match))))
       :items    ,(lambda () (mapcar (lambda (f) (concat idir f))
-				               ;; filter files that glob *.*
-				               (directory-files dir nil consult-notes-file-match)))
+        		               ;; filter files that glob *.*
+        		               (directory-files dir nil consult-notes-file-match)))
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
+
+;; (defun consult-notes-annotate-note (name cand)
+;;   "Annotate file CAND with its source NAME, size, and modification time."
+;;   (let* ((attrs (file-attributes cand))
+;; 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
+;; 	     (ftime (consult-notes--time (file-attribute-modification-time attrs)))
+;;          (max-width 0))
+;;     (put-text-property 0 (length name)  'face 'consult-notes-name name)
+;;     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
+;;     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
+;;     (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
+;;     (format "%3s  %5s  %8s" name fsize ftime)))
 
 (defun consult-notes-annotate-note (name cand)
   "Annotate file CAND with its source NAME, size, and modification time."
@@ -193,7 +221,7 @@ and DIR is the directory to find notes."
     (put-text-property 0 (length name)  'face 'consult-notes-name name)
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-    (format "%12s  %5s  %8s" name fsize ftime)))
+    (format "%18s %8s  %8s" name fsize ftime)))
 
 (defvar consult-notes--all-sources nil
   "List of all sources for use with `consult-notes'.
@@ -216,10 +244,13 @@ interact with `consult-notes-sources'.")
                                   :require-match
                                   (confirm-nonexistent-file-or-buffer)
                                   :prompt "Notes: "
+                                  :preview-key 'any
                                   :history 'consult-notes-history)))
     ;; For non-matching candidates, fall back to buffer-file creation.
     (unless (plist-get (cdr selected) :match)
-      (consult--file-action (car selected)))))
+      ;; (consult--file-action (car selected))
+      (funcall consult-notes-file-action (car selected))
+      )))
 
 ;;;###autoload
 (defun consult-notes-search-in-all-notes ()
@@ -231,16 +262,69 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
          (dirs
           (combine-and-quote-strings sources))
          (consult-grep-args
-          (concat consult-notes-grep-args " " dirs " " (when
-                                                           (bound-and-true-p consult-notes-org-roam-mode)
-                                                         (expand-file-name org-roam-directory))))
+          (concat consult-notes-grep-args " " dirs " " (cond ((bound-and-true-p consult-notes-org-roam-mode)
+                                                              (expand-file-name org-roam-directory))
+                                                             ((bound-and-true-p consult-notes-denote-mode)
+                                                              (expand-file-name denote-directory)))))
          (consult-ripgrep-args
-          (concat consult-notes-ripgrep-args " " dirs " " (when
-                                                              (bound-and-true-p consult-notes-org-roam-mode)
-                                                            (expand-file-name org-roam-directory)))))
+          (concat consult-notes-ripgrep-args " " dirs " " (cond ((bound-and-true-p consult-notes-org-roam-mode)
+                                                                 (expand-file-name org-roam-directory))
+                                                                ((bound-and-true-p consult-notes-denote-mode)
+                                                                 (expand-file-name denote-directory))))))
     (if consult-notes-use-rg
         (consult-ripgrep)
       (consult-grep))))
+
+;;;; Minor Modes
+;; Define a minor-mode for consult-notes & denote
+;;;###autoload
+(define-minor-mode consult-notes-denote-mode
+  "Toggle `consult-notes-denote-mode' to integrate consult with denote."
+  :init-value nil
+  :lighter nil
+  :group 'consult-notes
+  :global t
+  (require 'consult-notes-denote)
+  ;; Add or remove denote notes from sources
+  (cond (consult-notes-denote-mode
+         ;; Add denote notes source to consult--multi integration
+         (add-to-list 'consult-notes--all-sources 'consult-notes-denote--source 'append)
+         (setq consult-notes-file-action #'consult-notes-denote--new-note))
+        (t
+         ;; Remove denote notes from sources
+         (delete 'consult-notes-denote--source consult-notes--all-sources)
+         ;; Revert default new action
+         (custom-reevaluate-setting 'consult-notes-file-action))))
+
+;; Define a minor-mode for consult-notes & org-roam
+;;;###autoload
+(define-minor-mode consult-notes-org-roam-mode
+  "Toggle `consult-notes-org-roam-mode' to integrate consult with org-roam.
+
+By enabling `consult-notes-org-roam-mode' the functions
+`org-roam-node-read' and `org-roam-ref-read' are overriden by
+consult-notes' org-roam equivalents. Optional argument ARG indicates
+whether the mode should be enabled or disabled."
+  :init-value nil
+  :lighter nil
+  :group 'consult-notes
+  :global t
+  (require 'consult-notes-org-roam)
+  ;; Add or remove advice when enabled respectively disabled
+  (cond (consult-notes-org-roam-mode
+         ;; Save previous value of display-template
+         (setq consult-notes-org-roam--old-display-template org-roam-node-display-template)
+         ;; Set new value
+         (setq org-roam-node-display-template consult-notes-org-roam-template)
+         ;; Add org-roam consult--multi integration
+         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--nodes 'append)
+         (add-to-list 'consult-notes--all-sources 'consult-notes-org-roam--refs 'append))
+        (t
+         ;; Reset display template value
+         (setq org-roam-node-display-template consult-notes-org-roam--old-display-template)
+         (delete 'consult-notes-org-roam--nodes consult-notes--all-sources)
+         (delete 'consult-notes-org-roam--refs  consult-notes--all-sources))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
