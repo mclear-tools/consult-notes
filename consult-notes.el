@@ -73,7 +73,7 @@ details."
   :group 'consult-notes
   :type 'boolean)
 
-(defcustom consult-notes-ripgrep-args  "rg --null --line-buffered --color=never --max-columns=1000 --path-separator /\
+(defcustom consult-notes-ripgrep-args  "rg --multiline --null --line-buffered --color=never --max-columns=1000 --path-separator /\
    --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed"
   "Arguments for `ripgrep' and `consult-notes-search-in-all-notes'."
   :group 'consult-notes
