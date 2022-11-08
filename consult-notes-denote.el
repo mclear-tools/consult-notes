@@ -37,6 +37,13 @@
 (unless (require 'denote nil 'noerror)
   (message "Denote not found! Please check if it is installed."))
 
+;;;; Variables
+
+(defcustom consult-notes-denote-display-id t
+  "Whether ID is displayed in annotations for `consult-notes-denote'."
+  :group 'consult-notes
+  :type 'boolean)
+
 ;;;; Source
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
@@ -47,7 +54,9 @@
                     (let* ((max-width 0)
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
-                                                   (title (concat id " " (denote-retrieve-filename-title f)))
+                                                   (title (if consult-notes-denote-display-id
+                                                              (concat id " " (denote-retrieve-filename-title f))
+                                                            (denote-retrieve-filename-title f)))
                                                    (dir (file-relative-name (file-name-directory f) denote-directory))
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))

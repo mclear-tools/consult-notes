@@ -132,7 +132,7 @@ a relative age."
   "Face for backlinks data in `consult-notes'."
   :group 'faces)
 
-(defface consult-notes-sep '((t (:inherit (bold))))
+(defface consult-notes-sep '((t (:inherit (consult-separator))))
   "Face for separator in `consult-notes'."
   :group 'faces)
 
@@ -199,6 +199,7 @@ and DIR is the directory to find notes."
       :items    ,(lambda () (mapcar (lambda (f) (concat idir f))
         		               ;; filter files that glob *.*
         		               (directory-files dir nil consult-notes-file-match)))
+      :preview-key 'any
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 ;; (defun consult-notes-annotate-note (name cand)
