@@ -185,34 +185,12 @@ and DIR is the directory to find notes."
       :category ,consult-notes-category
       :face     consult-file
       :annotate ,(apply-partially consult-notes-annotate-note-function name)
-      ;; :items ,(lambda ()
-      ;;           (let* ((marginalia-align-offset 0)
-      ;;                  (max-width 0)
-      ;;                  (marginalia-align 'center))
-      ;;             (mapcar (lambda (f)
-      ;;                       (let ((current-width (string-width name)))
-      ;;                         (when (> current-width max-width)
-      ;;                           (setq max-width current-width)))
-      ;;                       (concat idir f))
-      ;;                     ;; (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
-      ;;                     (directory-files dir nil consult-notes-file-match))))
       :items    ,(lambda () (mapcar (lambda (f) (concat idir f))
         		               ;; filter files that glob *.*
         		               (directory-files dir nil consult-notes-file-match)))
+      :state    ,#'consult--file-state
       :preview-key 'any
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
-
-;; (defun consult-notes-annotate-note (name cand)
-;;   "Annotate file CAND with its source NAME, size, and modification time."
-;;   (let* ((attrs (file-attributes cand))
-;; 	     (fsize (file-size-human-readable (file-attribute-size attrs)))
-;; 	     (ftime (consult-notes--time (file-attribute-modification-time attrs)))
-;;          (max-width 0))
-;;     (put-text-property 0 (length name)  'face 'consult-notes-name name)
-;;     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
-;;     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-;;     (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
-;;     (format "%3s  %5s  %8s" name fsize ftime)))
 
 (defun consult-notes-annotate-note (name cand)
   "Annotate file CAND with its source NAME, size, and modification time."
@@ -249,7 +227,6 @@ interact with `consult-notes-sources'.")
                                   :history 'consult-notes-history)))
     ;; For non-matching candidates, fall back to buffer-file creation.
     (unless (plist-get (cdr selected) :match)
-      ;; (consult--file-action (car selected))
       (funcall consult-notes-file-action (car selected))
       )))
 
