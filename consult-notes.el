@@ -189,7 +189,6 @@ and DIR is the directory to find notes."
         		               ;; filter files that glob *.*
         		               (directory-files dir nil consult-notes-file-match)))
       :state    ,#'consult--file-state
-      :preview-key 'any
       :action   ,(lambda (f) (find-file f) consult-notes-default-format))))
 
 (defun consult-notes-annotate-note (name cand)
@@ -223,7 +222,6 @@ interact with `consult-notes-sources'.")
                                   :require-match
                                   (confirm-nonexistent-file-or-buffer)
                                   :prompt "Notes: "
-                                  :preview-key 'any
                                   :history 'consult-notes-history)))
     ;; For non-matching candidates, fall back to buffer-file creation.
     (unless (plist-get (cdr selected) :match)

@@ -91,8 +91,9 @@
         (funcall open))
       (funcall preview action
                (and cand
-                    (find-file-noselect
-                     (format "%s" (get-text-property 1 'denote-path cand))))))))
+                    (eq action 'preview)
+                    (funcall open
+                             (format "%s" (get-text-property 1 'denote-path cand))))))))
 
 (defun consult-notes-denote--extension-file-type (f)
   "Return denote file-type of F."
