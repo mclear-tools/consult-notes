@@ -2,7 +2,7 @@
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
-;; Version: 0.2
+;; Version: 0.5
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
