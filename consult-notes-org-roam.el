@@ -156,6 +156,24 @@ Set the old display template value when
     (put-text-property 0 (length time)  'face 'consult-notes-time time)
     (concat (if (> links 0) (propertize (format "%3s" links) 'face 'consult-notes-backlinks) (propertize (format "%3s" "nil") 'face 'shadow))  " " (s-truncate 8 (format "%s" dir) "…") " " (format "%5s" size) "  " (format "%5s" time))))
 
+(defun consult-notes-org-roam-node-preview ()
+  "Create preview function for nodes."
+  (let ((open (consult--temporary-files))
+        (preview (consult--buffer-preview)))
+    (lambda (action cand)
+      (let ((node (org-roam-node-from-title-or-alias cand)))
+        (unless cand
+          (funcall open))
+        (if (org-roam-node-p node)
+            (funcall preview action
+                     (and cand
+                          (eq action 'preview)
+                          (set-window-start
+                           (selected-window)
+                           (org-roam-node-point node))
+                          (funcall open (org-roam-node-file node)))))))))
+
+
 ;;;; Org-Roam & Consult--Multi
 ;; Define sources for consult--multi
 (defvar consult-notes-org-roam--nodes
@@ -167,6 +185,7 @@ Set the old display template value when
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
                          (title (mapcar #'org-roam-node-title node)))
                     (progn title)))
+    :state ,#'consult-notes-org-roam-node-preview
     :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
                          (org-roam-node-open node))))
   "Setup for `org-roam' and `consult--multi'.")
@@ -180,6 +199,7 @@ Set the old display template value when
     :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-ref-read--completions)))
                          (title (mapcar #'org-roam-node-title node)))
                     (progn title)))
+    :state ,#'consult-notes-org-roam-node-preview
     :action (lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
                         (org-roam-node-open node))))
   "Setup for `org-roam-refs' and `consult--multi'.")
