@@ -49,10 +49,10 @@
   :group 'consult-notes
   :type 'symbol)
 
-(defcustom consult-notes-sources
-  '(("Notes" ?n "~/Notes"))
+(defcustom consult-notes-sources nil
   "Sources for `consult-notes' file search.
 
+Each source entry is a list.
 There are three elements in the list. The first is a title
 string. The second is a narrowing key, and the third is a
 directory path (string) containing note files."
