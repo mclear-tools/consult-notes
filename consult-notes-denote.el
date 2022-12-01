@@ -113,7 +113,7 @@ Input \"foo\", then create \"id-foo\", file type is determined by
          (f-dir (file-name-directory f))
          (f-name-base (file-name-base f))
          (file-type (consult-notes-denote--extension-file-type f))
-         keywords  date directory template)
+         keywords date subdirectory template)
     (dolist (prompt denote-prompts)
       (pcase prompt
         ('keywords (setq keywords (denote-keywords-prompt)))
