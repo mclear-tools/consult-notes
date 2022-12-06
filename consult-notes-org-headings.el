@@ -34,9 +34,16 @@
 
 ;;;; Variables
 (defcustom consult-notes-org-headings-files org-agenda-files
-  "Source for `consult-notes-org-headings'."
+  "Source for `consult-notes-org-headings'.
+
+Default value is the value of variable `org-agenda-files'."
   :group 'consult-notes
   :type '(repeat file))
+
+(defcustom consult-org-headings-narrow-key ?h
+  "Key for narrowing using `consult-notes' function."
+  :group 'consult-notes
+  :type 'key)
 
 ;;;; Functions
 ;; See https://emacs.stackexchange.com/a/28689/11934
@@ -47,7 +54,7 @@
   strings)
 
 ;; This is adapted from `(org-agenda-files)'.
-(defun consult-notes-org-headings-files (&optional unrestricted)
+(defun consult-notes-org-headings-files ()
   "Get the list of org-headings files."
   (let ((files
 	     (cond
@@ -91,18 +98,21 @@ MATCH, SCOPE and SKIP are as in `org-map-entries'."
        cand))
    match scope skip))
 
-(defun consult-notes--org-headings-state()
-  "Preview org headline in relevant file."
-  (let ((state (consult--jump-state)))
+(defun consult-notes-org-headings--pos (cand &optional find-file)
+  "Find position of CAND for FIND-FILE in consult notes org-headings state function."
+  (when cand
+    (let* ((pos (get-text-property 0 'consult--candidate cand)))
+      pos)))
+
+(defun consult-notes-org-headings--state ()
+  "Org headings state function."
+  (let ((open (consult--temporary-files))
+        (state (consult--jump-state)))
     (lambda (action cand)
+      (unless cand
+        (funcall open))
       (when cand
-        (let* ((pos (get-text-property 0 'consult--candidate cand))
-               (buf (marker-buffer pos))
-               (name (substring-no-properties (buffer-name buf)))
-               (path (car
-                      (consult-notes--string-matches name consult-notes-org-headings-files)))
-               (file (consult--file-action path)))
-          (funcall state action file))))))
+        (funcall state action (consult-notes-org-headings--pos cand (and (not (eq action 'return)) open)))))))
 
 ;;;; Annotations
 (defun consult-notes-org-headings-annotations (cand)
@@ -123,13 +133,13 @@ MATCH, SCOPE and SKIP are as in `org-map-entries'."
 ;;;; Source
 (defconst consult-notes-org-headings--source
   (list :name (propertize "Org Headings" 'face 'consult-notes-sep)
-        :narrow ?a
+        :narrow consult-org-headings-narrow-key
         :sort nil
         :category 'consult-notes
         :items (funcall #'consult-notes--org-headings t (consult-notes-org-headings-files) nil)
-        :state #'consult-notes--org-headings-state
+        :state #'consult-notes-org-headings--state
         :annotate #'consult-notes-org-headings-annotations)
-  "Source for consult-notes multi.")
+  "Source for `consult-notes' function.")
 
 
 
