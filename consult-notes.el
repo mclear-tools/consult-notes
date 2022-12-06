@@ -252,6 +252,25 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
       (consult-grep))))
 
 ;;;; Minor Modes
+;; Define a minor-mode for consult-notes & org headings in specified files
+;;;###autoload
+(define-minor-mode consult-notes-org-headings-mode
+  "Toggle `consult-notes-org-headings-mode'."
+  :init-value nil
+  :lighter nil
+  :group 'consult-notes
+  :global t
+  (require 'consult-notes-org-headings)
+  ;; Add or remove denote notes from sources
+  (cond (consult-notes-org-headings-mode
+         ;; Add agenda notes source to consult--multi integration
+         (add-to-list 'consult-notes--all-sources 'consult-notes-org-headings--source 'append))
+        (t
+         ;; Remove agenda notes from sources
+         (delete 'consult-notes-org-headings--source consult-notes--all-sources)
+         ;; Revert default new action
+         (custom-reevaluate-setting 'consult-notes-file-action))))
+
 ;; Define a minor-mode for consult-notes & denote
 ;;;###autoload
 (define-minor-mode consult-notes-denote-mode
