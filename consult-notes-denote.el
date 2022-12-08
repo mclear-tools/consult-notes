@@ -77,23 +77,22 @@
                               cands)))
         ;; Custom preview
         :state  #'consult-notes-denote--state
-        :action   (lambda (f)
-                    (find-file (get-text-property 0 'denote-path f)))
         ;; Create new note on match fail
         :new     #'consult-notes-denote--new-note))
 
+(defun consult-notes-denote--file (cand)
+  (format "%s" (get-text-property 0 'denote-path cand)))
+
 (defun consult-notes-denote--state ()
-  "Create preview function for denote files."
+  "File preview for denote files."
   (let ((open (consult--temporary-files))
-        (preview (consult--buffer-preview)))
+        (state (consult--file-state)))
     (lambda (action cand)
       (unless cand
         (funcall open))
-      (funcall preview action
-               (and cand
-                    (eq action 'preview)
-                    (funcall open
-                             (format "%s" (get-text-property 1 'denote-path cand))))))))
+      (funcall state action (and cand
+                                 (consult-notes-denote--file cand))))))
+
 
 (defun consult-notes-denote--extension-file-type (f)
   "Return denote file-type of F."
