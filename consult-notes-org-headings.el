@@ -33,6 +33,8 @@
 (require 'org)
 
 ;;;; Variables
+(defvar consult-notes-org-headings--history nil)
+
 (defcustom consult-notes-org-headings-files org-agenda-files
   "Source for `consult-notes-org-headings'.
 
@@ -79,41 +81,66 @@ Default value is the value of variable `org-agenda-files'."
   "Return a list of Org heading candidates.
 
 MATCH, SCOPE and SKIP are as in `org-map-entries'."
-  (apply
-   #'org-map-entries
-   (lambda ()
-     ;; Reset the cache when the buffer changes, since `org-get-outline-path' uses the cache
-     (setq org-outline-path-cache nil)
-     (pcase-let ((`(_ ,level ,todo ,prio ,_hl ,tags) (org-heading-components))
-                 (cand (org-format-outline-path
-                        (org-get-outline-path 'with-self 'use-cache))))
-       (when tags
-         (setq tags (concat " " (propertize tags 'face `(:height 0.8 :inherit org-tag)))))
-       (setq cand (concat (propertize cand 'face 'consult-file)
-                          tags (consult--tofu-encode (point))))
-       (add-text-properties 0 1
-                            `(consult--candidate ,(point-marker)
-                                                 consult-org--heading (,level ,todo . ,prio))
-                            cand)
-       cand))
-   match scope skip))
+  (let (buffer)
+    (apply
+     #'org-map-entries
+     (lambda ()
+       (unless (eq buffer (buffer-name))
+         (setq buffer (buffer-name)
+               org-outline-path-cache nil))
+       (pcase-let ((max-width 0)
+                   (`(_ ,level ,todo ,prio ,_hl ,tags) (org-heading-components))
+                   (cand (org-format-outline-path
+                          (org-get-outline-path 'with-self 'use-cache))))
+         (when tags
+           (setq tags (concat " " (propertize tags 'face `(:height 0.8 :inherit org-tag)))))
 
-(defun consult-notes-org-headings--pos (cand &optional find-file)
-  "Find position of CAND for FIND-FILE in consult notes org-headings state function."
+         (setq cand (concat (propertize cand 'face 'consult-file)
+                            tags (consult--tofu-encode (point))
+                            (propertize " " 'display `(space :align-to center))
+
+                            (format "%18s" (propertize (concat "@" buffer) 'face 'consult-notes-sep))))
+         (add-text-properties 0 1
+                              `(consult--candidate ,(point-marker)
+                                                   consult-org--heading (,level ,todo . ,prio))
+                              cand)
+         cand))
+     match scope skip)))
+
+
+(defun consult-notes-org-headings--mrkr (cand &optional find-file)
+  "Return the marker for CAND.
+  FIND-FILE is the file open function, defaulting to `find-file'."
   (when cand
-    (let* ((pos (get-text-property 0 'consult--candidate cand)))
-      pos)))
+    (let* ((mrkr (get-text-property 0 'consult--candidate cand)))
+      mrkr)))
+
+(defun consult-notes-org-headings--file (cand)
+  (when cand
+    (let* ((mrkr (get-text-property 0 'consult--candidate cand))
+           (buf  (and cand (marker-buffer mrkr)))
+           (pt   (and cand (marker-position mrkr)))
+           (fi   (and cand (car
+                            (consult-notes--string-matches
+                             (buffer-name buf)
+                             consult-notes-org-headings-files)))))
+      (and cand fi))))
 
 (defun consult-notes-org-headings--state ()
   "Org headings state function."
-  (let ((open (consult--temporary-files))
-        (state (consult--jump-state)))
+  (let ((state (consult--jump-state))
+        (open  (consult--temporary-files)))
     (lambda (action cand)
       (unless cand
         (funcall open))
-      (when cand
-        (funcall state action (consult-notes-org-headings--pos cand (and (not (eq action 'return)) open)))))))
-
+      ;; (funcall state action (consult-notes-org-headings--file cand))))))
+      ;; (and cand (find-file-noselect (consult-notes-org-headings--file cand)))))))
+      ;; (message "%s" (consult-notes-org-headings--mrkr cand)))))
+      ;; (funcall state action))))
+      (funcall state action (consult-notes-org-headings--mrkr
+                             cand
+                             (and (not (eq action 'return))
+                                  open))))))
 ;;;; Annotations
 (defun consult-notes-org-headings-annotations (cand)
   "Annotate file CAND with its file attributes, size, and modification time."
@@ -125,23 +152,21 @@ MATCH, SCOPE and SKIP are as in `org-map-entries'."
          (attrs (file-attributes path))
          (ftime (consult-notes--time (file-attribute-modification-time attrs)))
          (fsize (file-size-human-readable (file-attribute-size attrs))))
-    (put-text-property 0 (length name)  'face 'consult-notes-size name)
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-    (format "%18s %8s  %8s" name fsize ftime)))
+    (format "%8s  %8s" fsize ftime)))
 
 ;;;; Source
 (defconst consult-notes-org-headings--source
   (list :name (propertize "Org Headings" 'face 'consult-notes-sep)
         :narrow consult-org-headings-narrow-key
-        :sort nil
         :category 'consult-notes
-        :items (funcall #'consult-notes--org-headings t (consult-notes-org-headings-files) nil)
+        :items (funcall #'consult-notes--org-headings t (consult-notes-org-headings-files))
         :state #'consult-notes-org-headings--state
-        :annotate #'consult-notes-org-headings-annotations)
-  "Source for `consult-notes' function.")
-
-
+        :annotate #'consult-notes-org-headings-annotations
+        :history 'consult-org--history
+        :lookup #'consult--lookup-candidate)
+  "Source for the `consult-notes' function.")
 
 (provide 'consult-notes-org-headings)
 ;;; consult-notes-org-headings.el ends here
