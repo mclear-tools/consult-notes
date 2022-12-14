@@ -2,7 +2,7 @@
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
-;; Version: 0.5
+;; Version: 0.6
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
 
@@ -48,7 +48,7 @@
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
         :narrow   ?d
-        :category 'files
+        :category 'consult-notes-category
         :annotate #'consult-notes-denote--annotate
         :items    (lambda ()
                     (let* ((max-width 0)

@@ -36,8 +36,8 @@ repo. Installation with use-package and straight is pretty easy:
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
-  (setq consult-notes-sources '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
-  ;; Set org-roam integration OR denote integration
+  (setq consult-notes-file-dir-sources '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
+  ;; Set org-roam integration OR denote integration, e.g.:
     (when (locate-library "denote")
   (consult-notes-denote-mode)))
 #+end_src
@@ -49,7 +49,7 @@ three elements: a title heading, a key (for narrowing), and a directory path.
 For example:
 
 #+begin_src emacs-lisp
-(setq consult-notes-sources
+(setq consult-notes-file-dir-sources
       '(("Org"             ?o "~/Dropbox/org-files")
         ("Org Refile"      ?r "~/Dropbox/Work/projects/notebook/org-refile")))
 #+end_src
@@ -68,7 +68,7 @@ means of =add-to-list= in one's config, e.g.
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'consult-notes
-    (add-to-list 'consult-notes--all-sources 'my-notes--additional-source 'append))
+    (add-to-list 'consult-notes-sources 'my-notes--additional-source 'append))
 #+end_src
   
 You may customize narrowing keys, separator names and annotations used. Please
