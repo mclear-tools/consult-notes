@@ -44,9 +44,9 @@ repo. Installation with use-package and straight is pretty easy:
 
 * Usage
 
-Set notes directories via =consult-notes-sources=. This is a list that consists of
-three elements: a title heading, a key (for narrowing), and a directory path.
-For example:
+Set notes directories via =consult-notes-file-dir-sources=. This is a list that
+consists of three elements: a title heading, a key (for narrowing), and a
+directory path. For example:
 
 #+begin_src emacs-lisp
 (setq consult-notes-file-dir-sources
@@ -59,7 +59,7 @@ integrated consult completion buffer. To narrow to a particular source, use its
 designated narrowing key.
 
 *NOTE*: If you don't use any sources beyond that of files in directories, then you
-don't need to set anything other than =consult-notes-sources=. Org-roam or denote
+don't need to set anything other than =consult-notes-file-dir-sources=. Org-roam or denote
 sources are set by using the relevant minor-mode (see below). However, if you /do/
 want to integrate other different kinds of sources (e.g. bookmarks or buffers)
 into =consult-notes= then please see the instructions for adding [[https://github.com/minad/consult#multiple-sources][multiple sources
@@ -68,7 +68,7 @@ means of =add-to-list= in one's config, e.g.
 
 #+begin_src emacs-lisp
 (with-eval-after-load 'consult-notes
-    (add-to-list 'consult-notes-sources 'my-notes--additional-source 'append))
+    (add-to-list 'consult-notes-all-sources 'my-notes--additional-source 'append))
 #+end_src
   
 You may customize narrowing keys, separator names and annotations used. Please
@@ -77,7 +77,7 @@ details. The faces used by consult-notes are all similarly customizable.
 
 Though consult-notes by default searches only for names of files (though see the
 minor modes for denote and org-roam integration), you may also easily search the
-(line) contents of all notes in =consult-notes-sources= using the function
+(line) contents of all notes in =consult-notes-all-sources= using the function
 =consult-notes-search-in-all-notes=. This uses =consult-grep= or =consult-ripgrep= as
 its basis (see the =consult-notes-use-rg= variable). You can set the arguments for
 the grep or ripgrep search with the variables =consult-notes-grep-args= and
@@ -86,9 +86,9 @@ the grep or ripgrep search with the variables =consult-notes-grep-args= and
 * Denote
 [[https://github.com/protesilaos/denote][Denote]] may be used in conjunction with consult-notes in one of two ways. You can
 simply set one or more directories containing your denote notes via the
-=consult-notes-sources= variable as described above, or you can turn on the minor
-mode =(=consult-notes-denote-mode=), which does three things. First, it adds your
-=denote-directory= files to =consult-notes-sources=. Second, it sets the display of
+=consult-notes-file-dir-sources= variable as described above, or you can turn on the minor
+mode =(=consult-notes-denote-mode)=, which does three things. First, it adds your
+=denote-directory= files to =consult-notes-all-sources=. Second, it sets the display of
 denote files in consult slightly differently, in the format of =ID Title
 #keywords size date modified=. ID, title, and keywords are all searchable. Third,
 the minor mode sets the default function when there is no match to create a
