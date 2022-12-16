@@ -68,7 +68,7 @@
                                 (let ((keywords (get-text-property 0 'denote-keywords c)))
                                   (concat c
                                           ;; align keywords
-                                          (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
+                                          (propertize " " 'display `(space :align-to (+ left ,(+ 6 max-width))))
                                           (format "%18s"
                                                   (if keywords
                                                       (concat (propertize "#" 'face 'consult-notes-name)
@@ -131,7 +131,7 @@ Input \"foo\", then create \"id-foo\", file type is determined by
          (fsize (file-size-human-readable (file-attribute-size attrs))))
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-    (format "%8s   %8s" fsize ftime)))
+    (format "%8s  %8s" fsize ftime)))
 
 (provide 'consult-notes-denote)
 ;;; consult-notes-denote.el ends here
