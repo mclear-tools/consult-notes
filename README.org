@@ -36,7 +36,7 @@ repo. Installation with use-package and straight is pretty easy:
              consult-notes-org-roam-find-node
              consult-notes-org-roam-find-node-relation)
   :config
-  (setq consult-notes-file-dir-sources '("Name"  ?key  "path/to/dir")) ;; Set notes dir(s), see below
+  (setq consult-notes-file-dir-sources '(("Name"  ?key  "path/to/dir"))) ;; Set notes dir(s), see below
   ;; Set org-roam integration OR denote integration, e.g.:
     (when (locate-library "denote")
   (consult-notes-denote-mode)))
