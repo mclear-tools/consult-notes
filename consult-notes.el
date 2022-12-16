@@ -202,9 +202,9 @@ and DIR is the directory to find notes."
                    (lambda (action cand)
                      (unless cand
                        (funcall open))
-                     (funcall state action (concat dir cand)))))))
+                     (funcall state action (and cand (concat dir cand))))))))
 
-;;;; Consult-Notes Annotation Function
+;;;; Consult-Notes File Dir Annotation Function
 
 (defun consult-notes--file-dir-annotate (name dir cand)
   "Annotate file CAND with its directory DIR, size, and modification time."
@@ -228,26 +228,7 @@ and DIR is the directory to find notes."
 
 ;;;; Minor Modes
 
-;;;;; Consult-Notes Org-Headings
-;; Define a minor-mode for consult-notes & org headings in specified files
-;;;###autoload
-(define-minor-mode consult-notes-org-headings-mode
-  "Toggle `consult-notes-org-headings-mode'."
-  :init-value nil
-  :lighter nil
-  :group 'consult-notes
-  :global t
-  (require 'consult-notes-org-headings)
-  ;; Add or remove denote notes from sources
-  (cond (consult-notes-org-headings-mode
-         ;; Add agenda notes source to consult--multi integration
-         (add-to-list 'consult-notes--all-sources 'consult-notes-org-headings--source 'append))
-        (t
-         ;; Remove agenda notes from sources
-         (delete 'consult-notes-org-headings--source consult-notes--all-sources)
-         ;; Revert default new action
-         (custom-reevaluate-setting 'consult-notes-file-action))))
-
+;;;;; Consult-Notes Denote
 ;; Define a minor-mode for consult-notes & denote
 ;;;###autoload
 (define-minor-mode consult-notes-denote-mode
