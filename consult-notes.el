@@ -181,7 +181,7 @@ a relative age."
     (consult-notes--time-absolute time)))
 
 ;;;; Consult-Notes File-Directory Function
-
+;;;###autoload
 (defun consult-notes--file-dir-source (name char dir)
   "Generate the notes source for each directory of files in `consult-notes-dir-sources'.
 
@@ -205,7 +205,7 @@ and DIR is the directory to find notes."
                      (funcall state action (and cand (concat dir cand))))))))
 
 ;;;; Consult-Notes File Dir Annotation Function
-
+;;;###autoload
 (defun consult-notes--file-dir-annotate (name dir cand)
   "Annotate file CAND with its directory DIR, size, and modification time."
   (let* ((file (concat dir cand))
@@ -219,6 +219,7 @@ and DIR is the directory to find notes."
     (format "%7s %8s  %12s  %8s" name fsize ftime dir)))
 
 ;;;; Consult-Notes Make File-Dir Sources
+;;;###autoload
 (defun consult-notes--make-file-dir-sources ()
   "Add generated `consult--multi' sources to list of all sources."
   (let ((sources (mapcar (lambda (s) (apply #'consult-notes--file-dir-source s))
@@ -234,7 +235,6 @@ and DIR is the directory to find notes."
 (define-minor-mode consult-notes-denote-mode
   "Toggle `consult-notes-denote-mode' to integrate consult with denote."
   :init-value nil
-  :lighter nil
   :group 'consult-notes
   :global t
   (require 'consult-notes-denote)
@@ -260,7 +260,6 @@ By enabling `consult-notes-org-roam-mode' the functions
 consult-notes' org-roam equivalents. Optional argument ARG indicates
 whether the mode should be enabled or disabled."
   :init-value nil
-  :lighter nil
   :group 'consult-notes
   :global t
   (require 'consult-notes-org-roam)
