@@ -50,8 +50,8 @@ directory path. For example:
 
 #+begin_src emacs-lisp
 (setq consult-notes-file-dir-sources
-      '(("Org"             ?o "~/Dropbox/org-files")
-        ("Org Refile"      ?r "~/Dropbox/Work/projects/notebook/org-refile")))
+      '(("Org"             ?o "~/Dropbox/org-files/")
+        ("Org Refile"      ?r "~/Dropbox/Work/projects/notebook/org-refile/")))
 #+end_src
 
 =consult-multi= will take each of these sources and present them together in one
