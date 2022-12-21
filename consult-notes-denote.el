@@ -44,6 +44,11 @@
   :group 'consult-notes
   :type 'boolean)
 
+(defcustom consult-notes-denote-dir t
+  "Whether directory name of rile is displayed in annotationsfor `consult-notes-denote'"
+  :group 'consult-notes
+  :type 'boolean)
+
 ;;;; Source
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
@@ -65,15 +70,18 @@
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
                                           (denote-directory-files))))
                       (mapcar (lambda (c)
-                                (let ((keywords (get-text-property 0 'denote-keywords c)))
+                                (let* ((keywords (get-text-property 0 'denote-keywords c))
+                                       (path (get-text-property 0 'denote-path c))
+                                       (dirs (directory-file-name (file-relative-name (file-name-directory path) denote-directory))))
                                   (concat c
                                           ;; align keywords
-                                          (propertize " " 'display `(space :align-to (+ left ,(+ 6 max-width))))
+                                          (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
                                           (format "%18s"
                                                   (if keywords
                                                       (concat (propertize "#" 'face 'consult-notes-name)
                                                               (propertize (mapconcat 'identity keywords " ") 'face 'consult-notes-name))
-                                                    "")))))
+                                                    ""))
+                                          (when consult-notes-denote-dir (format "%18s" (propertize (concat "/" dirs) 'face 'consult-notes-name))))))
                               cands)))
         ;; Custom preview
         :state  #'consult-notes-denote--state
