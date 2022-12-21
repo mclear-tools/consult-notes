@@ -83,13 +83,15 @@ the grep or ripgrep search with the variables =consult-notes-grep-args= and
 * Denote
 [[https://github.com/protesilaos/denote][Denote]] may be used in conjunction with consult-notes in one of two ways. You can
 simply set one or more directories containing your denote notes via the
-=consult-notes-file-dir-sources= variable as described above, or you can turn on the minor
-mode =(=consult-notes-denote-mode)=, which does three things. First, it adds your
-=denote-directory= files to =consult-notes-all-sources=. Second, it sets the display of
-denote files in consult slightly differently, in the format of =ID Title
-#keywords size date modified=. ID, title, and keywords are all searchable. Third,
-the minor mode sets the default function when there is no match to create a
-denote note. Turning off the minor mode resets the defaults.
+=consult-notes-file-dir-sources= variable as described above, or you can turn on
+the minor mode =(=consult-notes-denote-mode)=, which does three things. First, it
+adds your =denote-directory= files to =consult-notes-all-sources=. Second, it sets
+the display of denote files in consult slightly differently, in the format of =ID
+Title #keywords /directory size date modified=. ID, title, keywords, and
+directory are all searchable. If you like you can customize variables to hide
+the ID and directory. Third, the minor mode sets the default function when there
+is no match to create a denote note. Turning off the minor mode resets the
+defaults.
 
 * Org-Roam
 
@@ -119,7 +121,6 @@ If you have org files with many headings (say some subset of your agenda files,
 for example) that you would like to include in a consult-notes search, you can
 enable =consult-notes-org-headings-mode= and the headings for files you specify in
 =consult-notes-org-headings-files= will be included in consult-notes.
-
 
 * Embark support
 
