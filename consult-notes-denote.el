@@ -45,7 +45,7 @@
   :type 'boolean)
 
 (defcustom consult-notes-denote-dir t
-  "Whether directory name of rile is displayed in annotationsfor `consult-notes-denote'"
+  "Whether directory name of file is displayed in the annotations for `consult-notes-denote'."
   :group 'consult-notes
   :type 'boolean)
 
