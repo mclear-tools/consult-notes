@@ -2,7 +2,7 @@
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
-;; Version: 0.6
+;; Version: 0.7
 ;; Package-Requires: ((emacs "27.1") (consult "0.17") (s "1.12.0") (dash "2.19"))
 ;; Keywords: convenience
 ;; Homepage: https://github.com/mclear-tools/consult-notes
@@ -277,6 +277,26 @@ whether the mode should be enabled or disabled."
          (setq org-roam-node-display-template consult-notes-org-roam--old-display-template)
          (delete 'consult-notes-org-roam--nodes consult-notes-all-sources)
          (delete 'consult-notes-org-roam--refs  consult-notes-all-sources))))
+
+;;;;; Consult-Notes Org-Headings
+;; Define a minor-mode for consult-notes & org headings in specified files
+;;;###autoload
+(define-minor-mode consult-notes-org-headings-mode
+  "Toggle `consult-notes-org-headings-mode'."
+  :init-value nil
+  :lighter nil
+  :group 'consult-notes
+  :global t
+  (require 'consult-notes-org-headings)
+  ;; Add or remove org-headings from sources
+  (cond (consult-notes-org-headings-mode
+         ;; Add org-headings source to consult--multi integration
+         (add-to-list 'consult-notes-all-sources 'consult-notes-org-headings--source 'append))
+        (t
+         ;; Remove org-headgins from sources
+         (delete 'consult-notes-org-headings--source consult-notes-all-sources)
+         ;; Revert default new action
+         (custom-reevaluate-setting 'consult-notes-file-action))))
 
 ;;;; Consult-Notes Search (Grep/Ripgrep)
 
