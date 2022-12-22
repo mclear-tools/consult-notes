@@ -208,15 +208,16 @@ and DIR is the directory to find notes."
 ;;;###autoload
 (defun consult-notes--file-dir-annotate (name dir cand)
   "Annotate file CAND with its directory DIR, size, and modification time."
-  (let* ((file (concat dir cand))
+  (let* ((file  (concat dir cand))
+         (dirs  (abbreviate-file-name dir))
          (attrs (file-attributes file))
          (fsize (file-size-human-readable (file-attribute-size attrs)))
 	     (ftime (consult-notes--time (file-attribute-modification-time attrs))))
     (put-text-property 0 (length name)  'face 'consult-notes-name name)
-    (put-text-property 0 (length dir)  'face 'consult-notes-name dir)
+    (put-text-property 0 (length dirs)  'face 'consult-notes-name dirs)
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
-    (format "%7s %8s  %12s  %8s" name fsize ftime dir)))
+    (format "%7s %8s  %12s  %8s" name fsize ftime dirs)))
 
 ;;;; Consult-Notes Make File-Dir Sources
 ;;;###autoload
