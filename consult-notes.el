@@ -310,16 +310,23 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
           (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-file-dir-sources))))
          (dirs
           (combine-and-quote-strings sources))
+         (org-headings (combine-and-quote-strings (mapcar #'expand-file-name consult-notes-org-headings-files)))
          (consult-grep-args
-          (concat consult-notes-grep-args " " dirs " " (cond ((bound-and-true-p consult-notes-org-roam-mode)
-                                                              (expand-file-name org-roam-directory))
-                                                             ((bound-and-true-p consult-notes-denote-mode)
-                                                              (expand-file-name denote-directory)))))
+          (concat consult-notes-grep-args " " dirs " "
+                  (when (bound-and-true-p consult-notes-org-roam-mode)
+                    (concat (expand-file-name org-roam-directory) " "))
+                  (when (bound-and-true-p consult-notes-denote-mode)
+                    (concat (expand-file-name denote-directory) " "))
+                  (when (bound-and-true-p consult-notes-org-headings-mode)
+                    org-headings)))
          (consult-ripgrep-args
-          (concat consult-notes-ripgrep-args " " dirs " " (cond ((bound-and-true-p consult-notes-org-roam-mode)
-                                                                 (expand-file-name org-roam-directory))
-                                                                ((bound-and-true-p consult-notes-denote-mode)
-                                                                 (expand-file-name denote-directory))))))
+          (concat consult-notes-ripgrep-args " " dirs " "
+                  (when (bound-and-true-p consult-notes-org-roam-mode)
+                    (concat (expand-file-name org-roam-directory) " "))
+                  (when (bound-and-true-p consult-notes-denote-mode)
+                    (concat (expand-file-name denote-directory) " "))
+                  (when (bound-and-true-p consult-notes-org-headings-mode)
+                    org-headings))))
     (if consult-notes-use-rg
         (consult-ripgrep)
       (consult-grep))))
