@@ -60,8 +60,8 @@
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
                                                    (title (if consult-notes-denote-display-id
-                                                              (concat id " " (denote-retrieve-filename-title f))
-                                                            (denote-retrieve-filename-title f)))
+                                                              (concat id " " (denote-retrieve-title-value f (denote-filetype-heuristics f)))
+                                                            (denote-retrieve-title-value f (denote-filetype-heuristics f))))
                                                    (dir (file-relative-name (file-name-directory f) denote-directory))
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))
@@ -101,6 +101,8 @@
       (funcall state action (and cand
                                  (consult-notes-denote--file cand))))))
 
+(defun consult-notes-denote--blinks (cand)
+  (format "%s" (get-text-property 0 'denote-blinks)))
 
 (defun consult-notes-denote--extension-file-type (f)
   "Return denote file-type of F."
