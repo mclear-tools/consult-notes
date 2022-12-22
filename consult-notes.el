@@ -307,7 +307,7 @@ whether the mode should be enabled or disabled."
 Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
   (let* ((sources
-          (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-all-sources))))
+          (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-file-dir-sources))))
          (dirs
           (combine-and-quote-strings sources))
          (consult-grep-args
