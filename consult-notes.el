@@ -310,7 +310,8 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
           (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-file-dir-sources))))
          (dirs
           (combine-and-quote-strings sources))
-         (org-headings (combine-and-quote-strings (mapcar #'expand-file-name consult-notes-org-headings-files)))
+         (org-headings (when (bound-and-true-p consult-notes-org-headings-mode)
+                         (combine-and-quote-strings (mapcar #'expand-file-name consult-notes-org-headings-files))))
          (consult-grep-args
           (concat consult-notes-grep-args " " dirs " "
                   (when (bound-and-true-p consult-notes-org-roam-mode)
