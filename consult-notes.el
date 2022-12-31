@@ -202,13 +202,13 @@ and DIR is the directory to find notes."
                    (lambda (action cand)
                      (unless cand
                        (funcall open))
-                     (funcall state action (and cand (concat dir cand))))))))
+                     (funcall state action (and cand (concat (file-name-as-directory dir) cand))))))))
 
 ;;;; Consult-Notes File Dir Annotation Function
 ;;;###autoload
 (defun consult-notes--file-dir-annotate (name dir cand)
   "Annotate file CAND with its directory DIR, size, and modification time."
-  (let* ((file  (concat dir cand))
+  (let* ((file  (concat (file-name-as-directory dir) cand))
          (dirs  (abbreviate-file-name dir))
          (attrs (file-attributes file))
          (fsize (file-size-human-readable (file-attribute-size attrs)))
