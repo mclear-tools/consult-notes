@@ -72,6 +72,12 @@
   :group 'consult-notes
   :type 'string)
 
+(defcustom consult-notes-org-roam-show-file-size nil
+  "Show file size in annotations for org-roam notes in `consult-notes'.")
+
+(defcustom consult-notes-org-roam-blinks nil
+  "Shoe number of backlinks for org-roam note in `consult-notes'.")
+
 (defcustom consult-notes-org-roam-annotate-function #'consult-notes-org-roam-annotate
   "Function for annotations for org-roam nodes/refs in `consult-notes'.
 
@@ -151,10 +157,22 @@ Set the old display template value when
                         :where (= dest $s1)
                         :and (= type "id")]
                        (org-roam-node-id node)))))
+
     (put-text-property 0 (length dir)   'face 'consult-notes-dir dir)
-    (put-text-property 0 (length size)  'face 'consult-notes-size size)
+    (when consult-notes-org-roam-show-file-size
+      (put-text-property 0 (length size)  'face 'consult-notes-size size))
     (put-text-property 0 (length time)  'face 'consult-notes-time time)
-    (concat (if (> links 0) (propertize (format "%3s" links) 'face 'consult-notes-backlinks) (propertize (format "%3s" "nil") 'face 'shadow))  " " (s-truncate 8 (format "%s" dir) "…") " " (format "%5s" size) "  " (format "%5s" time))))
+    (concat (propertize " " 'display `(space :align-to center))
+            (when consult-notes-org-roam-blinks
+              (if (> links 0)
+                  (propertize (format "%3s" links) 'face 'consult-notes-backlinks)
+                (propertize (format "%3s" "nil") 'face 'shadow)))
+            " "
+            (s-truncate 8 (format "%s" dir) "…")
+            " "
+            (when consult-notes-org-roam-show-file-size (format "%5s" size))
+            " "
+            (format "%5s" time))))
 
 (defun consult-notes-org-roam-node-preview ()
   "Create preview function for nodes."
