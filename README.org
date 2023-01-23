@@ -22,6 +22,8 @@ consult-notes=.
 [[file:screenshots/notes-screenshot1.png]]
 #+ATTR_HTML: :width 85%
 [[file:screenshots/notes-screenshot2.png]]
+#+ATTR_HTML: :width 85%
+[[file:screenshots/notes-screenshot3.png]]
 
 * Installation
 This package is available on MELPA. Or you can install the package from this
