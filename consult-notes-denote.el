@@ -59,9 +59,10 @@
                     (let* ((max-width 0)
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
+                                                   (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f)) (denote-retrieve-filename-title f)))
                                                    (title (if consult-notes-denote-display-id
-                                                              (concat id " " (denote-retrieve-title-value f (denote-filetype-heuristics f)))
-                                                            (denote-retrieve-title-value f (denote-filetype-heuristics f))))
+                                                              (concat id " " title-1)
+                                                            title-1))
                                                    (dir (file-relative-name (file-name-directory f) denote-directory))
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))
