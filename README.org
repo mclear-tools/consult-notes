@@ -95,6 +95,16 @@ the ID and directory. Third, the minor mode sets the default function when there
 is no match to create a denote note. Turning off the minor mode resets the
 defaults.
 
+Please note that if you use denote with siloed directories then you need to
+modify the default =dir-locals.el= file so as use a string rather than the
+variable =default-directory=. So put something like the following in the
+=dir-locals.el= file:
+
+#+begin_src emacs-lisp
+((nil . ((denote-directory . "./"))))
+#+end_src
+
+
 * Org-Roam
 
 [[https://github.com/org-roam/org-roam][Org-roam]] may be used in conjunction with consult-notes but two things should be
