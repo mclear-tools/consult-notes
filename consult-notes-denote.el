@@ -49,6 +49,11 @@
   :group 'consult-notes
   :type 'boolean)
 
+(defcustom consult-notes-denote-files-function (denote-directory-files)
+  "Fuction for listing denote files. If only text files are wanted use `denote-directory-text-only-files' instead."
+  :group 'consult-notes
+  :type 'function)
+
 ;;;; Source
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
@@ -69,7 +74,7 @@
                                                 (when (> current-width max-width)
                                                   (setq max-width (+ 24 current-width))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
-                                          (denote-directory-files))))
+                                          consult-notes-denote-files-function)))
                       (mapcar (lambda (c)
                                 (let* ((keywords (get-text-property 0 'denote-keywords c))
                                        (path (get-text-property 0 'denote-path c))
