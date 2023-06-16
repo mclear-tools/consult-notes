@@ -294,7 +294,7 @@ whether the mode should be enabled or disabled."
          ;; Add org-headings source to consult--multi integration
          (add-to-list 'consult-notes-all-sources 'consult-notes-org-headings--source 'append))
         (t
-         ;; Remove org-headgins from sources
+         ;; Remove org-headings from sources
          (delete 'consult-notes-org-headings--source consult-notes-all-sources)
          ;; Revert default new action
          (custom-reevaluate-setting 'consult-notes-file-action))))
