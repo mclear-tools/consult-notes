@@ -143,7 +143,7 @@ FIND-FILE is the file open function, defaulting to `find-file'."
 (defconst consult-notes-org-headings--source
   (list :name (propertize "Org Headings" 'face 'consult-notes-sep)
         :narrow consult-org-headings-narrow-key
-        :category 'consult-notes
+        :category consult-notes-category
         :require-match t
         :items (lambda ()
                  (consult-notes--org-headings t (consult-notes-org-headings-files)))

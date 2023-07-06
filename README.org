@@ -167,7 +167,7 @@ If you use [[https://github.com/oantolin/embark][embark]] you can integrate cons
   (defvar-keymap consult-notes-map
     :doc "Keymap for Embark notes actions."
     :parent embark-file-map
-    "d" #'consult-notes-dired
+    "d" #'consult-notes-open-dired
     "g" #'consult-notes-grep
     "m" #'consult-notes-marked)
 

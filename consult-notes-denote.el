@@ -58,7 +58,7 @@
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
         :narrow   ?d
-        :category 'consult-notes-category
+        :category consult-notes-category
         :annotate #'consult-notes-denote--annotate
         :items    (lambda ()
                     (let* ((max-width 0)
