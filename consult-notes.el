@@ -78,17 +78,6 @@ details."
   :group 'consult-notes
   :type 'boolean)
 
-(defcustom consult-notes-ripgrep-args  "rg --multiline --null --line-buffered --color=never --max-columns=1000 --path-separator /\
-   --ignore-case --no-heading --line-number --hidden --glob=!.git/ -L --sortr=accessed"
-  "Arguments for `ripgrep' and `consult-notes-search-in-all-notes'."
-  :group 'consult-notes
-  :type 'string)
-
-(defcustom consult-notes-grep-args "grep --null --line-buffered --color=never --ignore-case --exclude-dir=.git --line-number -I -R"
-  "Arguments for `grep' and `consult-notes-search-in-all-notes'."
-  :group 'consult-notes
-  :type 'string)
-
 (defcustom consult-notes-default-format '(org-mode)
   "Default format for `consult-notes' open function."
   :group 'consult-notes
@@ -306,31 +295,22 @@ whether the mode should be enabled or disabled."
   "Search in all notes using `grep' or `ripgrep'.
 Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
-  (let* ((sources
-          (mapcar #'expand-file-name (flatten-tree (mapcar #'cddr consult-notes-file-dir-sources))))
-         (dirs
-          (combine-and-quote-strings sources))
-         (org-headings (when (bound-and-true-p consult-notes-org-headings-mode)
-                         (combine-and-quote-strings (mapcar #'expand-file-name consult-notes-org-headings-files))))
-         (consult-grep-args
-          (concat consult-notes-grep-args " " dirs " "
-                  (when (bound-and-true-p consult-notes-org-roam-mode)
-                    (concat (expand-file-name org-roam-directory) " "))
-                  (when (bound-and-true-p consult-notes-denote-mode)
-                    (concat (expand-file-name denote-directory) " "))
-                  (when (bound-and-true-p consult-notes-org-headings-mode)
-                    org-headings)))
-         (consult-ripgrep-args
-          (concat consult-notes-ripgrep-args " " dirs " "
-                  (when (bound-and-true-p consult-notes-org-roam-mode)
-                    (concat (expand-file-name org-roam-directory) " "))
-                  (when (bound-and-true-p consult-notes-denote-mode)
-                    (concat (expand-file-name denote-directory) " "))
-                  (when (bound-and-true-p consult-notes-org-headings-mode)
-                    org-headings))))
+  (let ((sources (flatten-list
+                  (append
+                   ;; dir sources
+                   (mapcar #'cddr consult-notes-file-dir-sources)
+                   ;; org roam
+                   (when (bound-and-true-p consult-notes-org-roam-mode)
+                     (list (expand-file-name org-roam-directory)))
+                   ;; denote
+                   (when (bound-and-true-p consult-notes-denote-mode)
+                     (list (expand-file-name denote-directory)))
+                   ;; org agenda files
+                   (when (bound-and-true-p consult-notes-org-headings-mode)
+                     (mapcar #'expand-file-name consult-notes-org-headings-files))))))
     (if consult-notes-use-rg
-        (consult-ripgrep)
-      (consult-grep))))
+        (consult-ripgrep sources)
+      (consult-grep sources))))
 
 ;;;; Consult-Notes Consult--Multi
 
