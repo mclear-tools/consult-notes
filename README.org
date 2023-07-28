@@ -44,7 +44,9 @@ repo. Installation with use-package and straight is pretty easy:
                                            "~/path/to/file2.org"))
   (consult-notes-org-headings-mode)
   (when (locate-library "denote")
-    (consult-notes-denote-mode)))
+    (consult-notes-denote-mode))
+  ;; search only for text files in denote dir
+  (setq consult-notes-denote-files-function (function denote-directory-text-only-files)))
 #+end_src
 
 * Usage
