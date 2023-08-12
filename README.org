@@ -146,32 +146,18 @@ enable =consult-notes-org-headings-mode= and the headings for files you specify 
 
 * Embark support
 
-If you use [[https://github.com/oantolin/embark][embark]] you can integrate consult-notes actions with embark like so: 
+If you use [[https://github.com/oantolin/embark][embark]] you can integrate consult-notes actions with embark. Note that Embark will run on the CAND at point, which will often return either a file name, or a file name plus other annotations, depending on what your sources are. So you'll have to write a function to manipulate CAND to give you a viable path to the file or a directory containing the file. 
 
 #+begin_src emacs-lisp
-  (defun consult-notes-open-dired (cand)
-    "Open notes directory dired with point on file CAND."
+  (defun consult-notes-my-embark-function (cand)
+    "Do something with CAND"
     (interactive "fNote: ")
-    ;; dired-jump is in dired-x.el but is moved to dired in Emacs 28
-    (dired-jump nil cand))
-
-  (defun consult-notes-marked (cand)
-    "Open a notes file CAND in Marked 2.
-  Marked 2 is a mac app that renders markdown."
-    (interactive "fNote: ")
-    (call-process-shell-command (format "open -a \"Marked 2\" \"%s\"" (expand-file-name cand))))
-
-  (defun consult-notes-grep (cand)
-    "Run grep in directory of notes file CAND."
-    (interactive "fNote: ")
-    (consult-grep (file-name-directory cand)))
+    (my-function))
 
   (defvar-keymap consult-notes-map
     :doc "Keymap for Embark notes actions."
     :parent embark-file-map
-    "d" #'consult-notes-open-dired
-    "g" #'consult-notes-grep
-    "m" #'consult-notes-marked)
+    "m" #'consult-notes-my-embark-function)
 
   (add-to-list 'embark-keymap-alist `(,consult-notes-category . consult-notes-map))
 
