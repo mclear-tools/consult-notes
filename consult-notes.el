@@ -323,7 +323,8 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
                   :require-match
                   (confirm-nonexistent-file-or-buffer)
                   :prompt "Notes: "
-                  :history 'consult-notes-history))
+                  :history 'consult-notes-history
+                  :add-history (seq-some #'thing-at-point '(region symbol))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
