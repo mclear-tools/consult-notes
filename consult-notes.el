@@ -59,10 +59,10 @@
   "Directories of files for searching with `consult-notes'.
 Each source entry is a list.
 There are three elements in the list. The first is a title
-string. The second is a narrowing key, and the third is a
-directory path (string) containing note files."
+string. The second is a narrowing key (character), and the third
+is a directory path (string) containing note files."
   :group 'consult-notes
-  :type '(list string key string))
+  :type '(repeat (list string character string)))
 
 (defcustom consult-notes-file-dir-annotate-function #'consult-notes--file-dir-annotate
   "Function to call for annotations of file note directories in `consult-notes'.
