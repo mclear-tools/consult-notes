@@ -134,7 +134,7 @@ FIND-FILE is the file open function, defaulting to `find-file'."
                 (consult-notes--string-matches name consult-notes-org-headings-files)))
          (attrs (file-attributes path))
          (ftime (consult-notes--time (file-attribute-modification-time attrs)))
-         (fsize (file-size-human-readable (file-attribute-size attrs))))
+         (fsize (file-size-human-readable (or (file-attribute-size attrs) 0 ))))
     (put-text-property 0 (length fsize) 'face 'consult-notes-size fsize)
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
     (format "%8s  %8s" fsize ftime)))
