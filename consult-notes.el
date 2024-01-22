@@ -295,19 +295,20 @@ whether the mode should be enabled or disabled."
   "Search in all notes using `grep' or `ripgrep'.
 Which search function is used depends on the value of `consult-notes-use-rg'."
   (interactive)
-  (let ((sources (flatten-list
-                  (append
-                   ;; dir sources
-                   (mapcar #'cddr consult-notes-file-dir-sources)
-                   ;; org roam
-                   (when (bound-and-true-p consult-notes-org-roam-mode)
-                     (list (expand-file-name org-roam-directory)))
-                   ;; denote
-                   (when (bound-and-true-p consult-notes-denote-mode)
-                     (list (expand-file-name denote-directory)))
-                   ;; org agenda files
-                   (when (bound-and-true-p consult-notes-org-headings-mode)
-                     (mapcar #'expand-file-name consult-notes-org-headings-files))))))
+  (let ((sources (delete-dups
+                  (flatten-list
+                   (append
+                    ;; dir sources
+                    (mapcar #'cddr consult-notes-file-dir-sources)
+                    ;; org roam
+                    (when (bound-and-true-p consult-notes-org-roam-mode)
+                      (list (expand-file-name org-roam-directory)))
+                    ;; denote
+                    (when (bound-and-true-p consult-notes-denote-mode)
+                      (list (expand-file-name denote-directory)))
+                    ;; org agenda files
+                    (when (bound-and-true-p consult-notes-org-headings-mode)
+                      (mapcar #'expand-file-name consult-notes-org-headings-files)))))))
     (if consult-notes-use-rg
         (consult-ripgrep sources)
       (consult-grep sources))))
