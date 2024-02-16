@@ -54,7 +54,7 @@
   :group 'consult-notes
   :type 'function)
 
-(defcustom consult-notes-denote-file-dir-annotate-function #'consult-notes-denote--annotate
+(defcustom consult-notes-denote-annotate-function #'consult-notes-denote--annotate
   "Function to call for annotations of file note directories in `consult-notes'.
 
 The default function displays dir, file size, and modified time.
