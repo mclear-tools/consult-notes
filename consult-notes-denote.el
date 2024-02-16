@@ -54,6 +54,15 @@
   :group 'consult-notes
   :type 'function)
 
+(defcustom consult-notes-denote-file-dir-annotate-function #'consult-notes-denote--annotate
+  "Function to call for annotations of file note directories in `consult-notes'.
+
+The default function displays dir, file size, and modified time.
+Please see the function `consult-notes-denote--annotate' for
+details."
+  :group 'consult-notes
+  :type 'function)
+
 ;;;; Source
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
