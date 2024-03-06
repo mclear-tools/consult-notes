@@ -49,7 +49,7 @@
   :group 'consult-notes
   :type 'boolean)
 
-(defcustom consult-notes-denote-files-function (function denote-directory-files)
+(defcustom consult-notes-denote-files-function  #'denote-directory-files
   "Fuction for listing denote files. If only text files are wanted use `denote-directory-text-only-files' instead."
   :group 'consult-notes
   :type 'function)
@@ -68,7 +68,7 @@ details."
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
         :narrow   ?d
         :category consult-notes-category
-        :annotate #'consult-notes-denote--annotate
+        :annotate consult-notes-denote-annotate-function
         :items    (lambda ()
                     (let* ((max-width 0)
                            (cands (mapcar (lambda (f)
