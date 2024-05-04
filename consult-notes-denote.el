@@ -158,5 +158,13 @@ Input \"foo\", then create \"id-foo\", file type is determined by
     (put-text-property 0 (length ftime) 'face 'consult-notes-time ftime)
     (format "%8s  %8s" fsize ftime)))
 
+(defun consult-notes-denote--insert-link (cand)
+  "Insert CAND in `consult-notes-denote' using `denote-link'."
+  (let* ((file (get-text-property 0 'denote-path cand))
+	 (file-type (denote-filetype-heuristics buffer-file-name))
+	 (description (denote--link-get-description file)))
+    (kill-buffer)
+    (denote-link file file-type description)))
+
 (provide 'consult-notes-denote)
 ;;; consult-notes-denote.el ends here

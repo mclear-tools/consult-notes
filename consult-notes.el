@@ -327,6 +327,16 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
                   :history 'consult-notes-history
                   :add-history (seq-some #'thing-at-point '(region symbol))))
 
+;;;###autoload
+(defun consult-notes-insert-link ()
+  "Find a file in a notes directory with consult-multi and insert it as a
+link."
+  (interactive)
+  (if (not (bound-and-true-p consult-notes-denote-mode))
+      (message "`consult-notes-insert-link' currently only supports `consult-notes-denote-mode'.")
+    (consult-notes `((,@consult-notes-denote--source
+		      :action ,#'consult-notes-denote--insert-link)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
 (provide 'consult-notes)
