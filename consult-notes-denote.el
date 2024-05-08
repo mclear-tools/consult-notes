@@ -63,6 +63,23 @@ details."
   :group 'consult-notes
   :type 'function)
 
+(defcustom consult-notes-denote-display-keywords-function #'consult-notes-denote--display-keywords
+  "Function to display the keywords of the file in the annotations for `consult-notes-denote'."
+  :group 'consult-notes
+  :type 'function)
+
+(defcustom consult-notes-denote-display-dir-function #'consult-notes-denote--display-dir
+  "Function used to display the directory name of the file in the annotations for `consult-notes-denote'.
+
+This function is only called when `consult-notes-denote-dir' is not nil."
+  :group 'consult-notes
+  :type 'function)
+
+(defcustom consult-notes-denote-title-margin 24
+  "Margin between the title and the keywords in the annotations for `consult-notes-denote'."
+  :group 'consult-notes
+  :type 'integer)
+
 ;;;; Source
 (defconst consult-notes-denote--source
   (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
@@ -81,7 +98,7 @@ details."
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))
                                                 (when (> current-width max-width)
-                                                  (setq max-width (+ 24 current-width))))
+                                                  (setq max-width (+ consult-notes-denote-title-margin current-width))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
                                           (funcall consult-notes-denote-files-function))))
                       (mapcar (lambda (c)
@@ -91,17 +108,20 @@ details."
                                   (concat c
                                           ;; align keywords
                                           (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
-                                          (format "%18s"
-                                                  (if keywords
-                                                      (concat (propertize "#" 'face 'consult-notes-name)
-                                                              (propertize (mapconcat 'identity keywords " ") 'face 'consult-notes-name))
-                                                    ""))
-                                          (when consult-notes-denote-dir (format "%18s" (propertize (concat "/" dirs) 'face 'consult-notes-name))))))
+					  (propertize (funcall consult-notes-denote-display-keywords-function keywords) 'face 'consult-notes-name)
+					  (when consult-notes-denote-dir
+					    (propertize (funcall consult-notes-denote-display-dir-function dirs) 'face 'consult-notes-name)))))
                               cands)))
         ;; Custom preview
         :state  #'consult-notes-denote--state
         ;; Create new note on match fail
         :new     #'consult-notes-denote--new-note))
+
+(defun consult-notes-denote--display-keywords (keywords)
+  (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " ")) "")))
+
+(defun consult-notes-denote--display-dir (dirs)
+  (format "%18s" (concat "/" dirs)))
 
 (defun consult-notes-denote--file (cand)
   (format "%s" (get-text-property 0 'denote-path cand)))

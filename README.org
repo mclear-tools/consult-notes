@@ -94,9 +94,10 @@ adds your =denote-directory= files to =consult-notes-all-sources=. Second, it se
 the display of denote files in consult slightly differently, in the format of
 =ID Title #keywords /directory size date modified=. ID, title, keywords, and
 directory are all searchable. If you like you can customize variables to hide
-the ID and directory. Third, the minor mode sets the default function when there
-is no match to create a denote note. Turning off the minor mode resets the
-defaults.
+the ID and directory, change the margin between the title and the keywords, or
+to adjust the way in which the keywords and directory are displayed. Third, the
+minor mode sets the default function when there is no match to create a denote
+note. Turning off the minor mode resets the defaults.
 
 Please note that if you use denote with siloed directories then you need to
 modify the default =dir-locals.el= file so as use a string rather than the
