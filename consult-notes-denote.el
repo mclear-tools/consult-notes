@@ -118,7 +118,7 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         :new     #'consult-notes-denote--new-note))
 
 (defun consult-notes-denote--display-keywords (keywords)
-  (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " ")) "")))
+  (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " #")) "")))
 
 (defun consult-notes-denote--display-dir (dirs)
   (format "%18s" (concat "/" dirs)))
