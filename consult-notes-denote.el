@@ -126,6 +126,14 @@ This function is only called when `consult-notes-denote-dir' is not nil."
 (defun consult-notes-denote--file (cand)
   (format "%s" (get-text-property 0 'denote-path cand)))
 
+;; Helper function
+(defun consult-notes-denote--excluded-p (file)
+  "Return non-nil if FILE should be excluded from preview."
+  (seq-some (lambda (pattern)
+              (string-match-p pattern file))
+            consult-preview-excluded-files))
+
+;; Preview & make sure to respect excluded files
 (defun consult-notes-denote--state ()
   "File preview for denote files."
   (let ((open (consult--temporary-files))
@@ -134,6 +142,7 @@ This function is only called when `consult-notes-denote-dir' is not nil."
       (unless cand
         (funcall open))
       (funcall state action (and cand
+                                 (not (consult-notes-denote--excluded-p cand))
                                  (consult-notes-denote--file cand))))))
 
 (defun consult-notes-denote--blinks (cand)
