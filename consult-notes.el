@@ -171,27 +171,29 @@ a relative age."
 
 ;;;; Consult-Notes File-Directory Function
 ;;;###autoload
-(defun consult-notes--file-dir-source (name char dir)
+(defun consult-notes--file-dir-source (name char dir &rest args)
   "Generate the notes source for each directory of files in `consult-notes-dir-sources'.
 
  Return a notes source list suitable for `consult--multi'.
 NAME is the source name, CHAR is the narrowing character,
 and DIR is the directory to find notes."
-  `(:name     ,(propertize name 'face 'consult-notes-sep)
-    :narrow   ,char
-    :category ,consult-notes-category
-    :face     consult-file
-    :annotate ,(apply-partially consult-notes-file-dir-annotate-function name dir)
-    :items    ,(lambda ()
-                 (let* ((files (directory-files dir nil consult-notes-file-match)))
-                   files))
-    :state    ,(lambda ()
-                 (let ((open (consult--temporary-files))
-                       (state (consult--file-state)))
-                   (lambda (action cand)
-                     (unless cand
-                       (funcall open))
-                     (funcall state action (and cand (concat (file-name-as-directory dir) cand))))))))
+  (let ((hidden (plist-get args :hidden)))
+    `(:name     ,(propertize name 'face 'consult-notes-sep)
+      :narrow   ,char
+      :category ,consult-notes-category
+      :face     consult-file
+      :annotate ,(apply-partially consult-notes-file-dir-annotate-function name dir)
+      :hidden   ,hidden
+      :items    ,(lambda ()
+                  (let* ((files (directory-files dir nil consult-notes-file-match)))
+                    files))
+      :state    ,(lambda ()
+                  (let ((open (consult--temporary-files))
+                        (state (consult--file-state)))
+                    (lambda (action cand)
+                      (unless cand
+                        (funcall open))
+                      (funcall state action (and cand (concat (file-name-as-directory dir) cand)))))))))
 
 ;;;; Consult-Notes File Dir Annotation Function
 ;;;###autoload
