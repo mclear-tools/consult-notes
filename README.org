@@ -70,7 +70,7 @@ Optionally you can add =:hidden t= to hide particular folder from default list p
 #+begin_src emacs-lisp
 (setq consult-notes-file-dir-sources
       '(("Visible"        ?o "~/Dropbox/org-files/visible/")
-        ("Hiden"          ?r "~/Dropbox/org-files/hidden/" :hidden t)))
+        ("Hidden"          ?r "~/Dropbox/org-files/hidden/" :hidden t)))
 #+end_src
 
 *NOTE*: If you don't use any sources beyond that of files in directories, then you don't need to set anything other than =consult-notes-file-dir-sources=. Org-roam or denote sources are set by using the relevant minor-mode (see below). However, if you /do/ want to integrate other different kinds of sources (e.g. bookmarks or buffers) into =consult-notes= then please see the instructions for adding [[https://github.com/minad/consult#multiple-sources][multiple sources with consult]]. To add an additional non-directory source one should do so by means of =add-to-list= in one's config, e.g.
