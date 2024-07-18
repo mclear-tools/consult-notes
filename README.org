@@ -115,6 +115,9 @@ variable =default-directory=. So put something like the following in the
 ((nil . ((denote-directory . "./"))))
 #+end_src
 
+Multi-tags search does not work out-of-the box but a workaround is to use the
+orderless package and type =#= followed by a space, then tags separated by
+spaces.
 
 * Org-Roam
 
