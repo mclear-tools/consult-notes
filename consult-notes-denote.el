@@ -80,42 +80,104 @@ This function is only called when `consult-notes-denote-dir' is not nil."
   :group 'consult-notes
   :type 'integer)
 
+
+(defcustom consult-notes-denote-silos nil
+  "Denote silos for `consult-notes-denote'."
+  :group 'consult-notes
+  :type '(repeat (list string character string)))
+
 ;;;; Source
-(defconst consult-notes-denote--source
-  (list :name     (propertize "Denote notes" 'face 'consult-notes-sep)
+(defun consult-notes-denote--source-items (directory)
         :narrow   ?d
+  "Helper function to create list of denote itens for sources based on DIRECTORY."
         :category consult-notes-category
+  (let* ((max-width 0)
         :annotate consult-notes-denote-annotate-function
+         (denote-directory directory)
         :items    (lambda ()
+         (cands (mapcar (lambda (f)
                     (let* ((max-width 0)
+                          (let* ((id (denote-retrieve-filename-identifier f))
                            (cands (mapcar (lambda (f)
+                                 (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f)) (denote-retrieve-filename-title f)))
                                             (let* ((id (denote-retrieve-filename-identifier f))
+                                 (title (if consult-notes-denote-display-id
                                                    (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f)) (denote-retrieve-filename-title f)))
+                                            (concat id " " title-1)
                                                    (title (if consult-notes-denote-display-id
+                                          title-1))
                                                               (concat id " " title-1)
+                                 (dir (file-relative-name (file-name-directory f) denote-directory))
                                                             title-1))
+                                 (keywords (denote-extract-keywords-from-path f)))
                                                    (dir (file-relative-name (file-name-directory f) denote-directory))
+                            (let ((current-width (string-width title)))
                                                    (keywords (denote-extract-keywords-from-path f)))
+                              (when (> current-width max-width)
                                               (let ((current-width (string-width title)))
+                                (setq max-width (+ 24 current-width))))
                                                 (when (> current-width max-width)
+                            (propertize title 'denote-path f 'denote-keywords keywords)))
                                                   (setq max-width (+ consult-notes-denote-title-margin current-width))))
+                        (funcall consult-notes-denote-files-function))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
+    (mapcar (lambda (c)
                                           (funcall consult-notes-denote-files-function))))
+              (let* ((keywords (get-text-property 0 'denote-keywords c))
                       (mapcar (lambda (c)
+                     (path (get-text-property 0 'denote-path c))
                                 (let* ((keywords (get-text-property 0 'denote-keywords c))
+                     (dirs (directory-file-name (file-relative-name (file-name-directory path) denote-directory))))
                                        (path (get-text-property 0 'denote-path c))
+                (concat c
                                        (dirs (directory-file-name (file-relative-name (file-name-directory path) denote-directory))))
+                        ;; align keywords
                                   (concat c
+                        (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
                                           ;; align keywords
+                        (format "%18s"
                                           (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
+                                (if keywords
 					  (propertize (funcall consult-notes-denote-display-keywords-function keywords) 'face 'consult-notes-name)
+                                    (concat (propertize "#" 'face 'consult-notes-name)
 					  (when consult-notes-denote-dir
+                                            (propertize (mapconcat 'identity keywords " ") 'face 'consult-notes-name))
 					    (propertize (funcall consult-notes-denote-display-dir-function dirs) 'face 'consult-notes-name)))))
+                                  ""))
                               cands)))
+                        (when consult-notes-denote-dir (format "%18s" (propertize (concat "/" dirs) 'face 'consult-notes-name))))))
+        cands)))
+
+
+(defun consult-notes-denote--source (name key directory)
+  "Create a ‘consult-notes’ source with NAME, KEY, and DIRECTORY."
+  (list :name     (propertize name 'face 'consult-notes-sep)
+        :narrow   key
+        :category 'consult-notes-category
+        :annotate #'consult-notes-denote--annotate
+        :items    (lambda () (consult-notes-denote--source-items directory))
         ;; Custom preview
-        :state  #'consult-notes-denote--state
+        :state    #'consult-notes-denote--state
         ;; Create new note on match fail
-        :new     #'consult-notes-denote--new-note))
+        :new      #'consult-notes-denote--new-note))
+
+(defvar consult-notes-denote--all-sources nil)
+
+(defun consult-notes-denote--make-silos-sources ()
+  "Generate consult sources for all silos."
+  (dolist (dir consult-notes-denote-silos)
+    (let* ((name (nth 0 dir))
+           (key (nth 1 dir))
+           (directory (nth 2 dir))
+           (source (consult-notes-denote--source name key directory)))
+      (add-to-list 'consult-notes-all-sources source)
+      (add-to-list 'consult-notes-denote--all-sources source))))
+
+(defun consult-notes-denote--remove-sources ()
+  "Remove denote sources."
+  (dolist (source consult-notes-denote--all-sources)
+    (setq consult-notes-all-sources (remove source consult-notes-all-sources)))
+  (setq consult-notes-denote--all-sources nil))
 
 (defun consult-notes-denote--display-keywords (keywords)
   (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " ")) "")))

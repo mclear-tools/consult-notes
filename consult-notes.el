@@ -232,12 +232,15 @@ and DIR is the directory to find notes."
   (require 'consult-notes-denote)
   ;; Add or remove denote notes from sources
   (cond (consult-notes-denote-mode
+         (when (not consult-notes-denote-silos)
+           (setq consult-notes-denote-silos `(("Denote notes" ?d ,denote-directory))))
+
          ;; Add denote notes source to consult--multi integration
-         (add-to-list 'consult-notes-all-sources 'consult-notes-denote--source 'append)
+         (consult-notes-denote--make-silos-sources)
          (setq consult-notes-file-action #'consult-notes-denote--new-note))
         (t
          ;; Remove denote notes from sources
-         (delete 'consult-notes-denote--source consult-notes-all-sources)
+         (consult-notes-denote--remove-sources)
          ;; Revert default new action
          (custom-reevaluate-setting 'consult-notes-file-action))))
 
