@@ -50,7 +50,7 @@
   :type 'boolean)
 
 (defcustom consult-notes-denote-files-function  #'denote-directory-files
-  "Fuction for listing denote files. If only text files are wanted use `denote-directory-text-only-files' instead."
+  "Fuction for listing denote files. If only text files are wanted see setup recommended in the README."
   :group 'consult-notes
   :type 'function)
 

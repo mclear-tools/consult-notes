@@ -115,6 +115,13 @@ variable =default-directory=. So put something like the following in the
 ((nil . ((denote-directory . "./"))))
 #+end_src
 
+If you use denote to store more than just text files you may want to adjust it as follows (NOTE: this presumes you use Denote 3.x).
+
+#+begin_src emacs-lisp
+(setq consult-notes-denote-files-function (lambda () (denote-directory-files nil t t)))
+#+end_src
+
+If you use an older version of Denote, you can instead set =consult-notes-denote-files-function= to use =denote-directory-text-only-files=.
 
 * Org-Roam
 
