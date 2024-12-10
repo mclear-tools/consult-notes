@@ -68,6 +68,11 @@ details."
   :group 'consult-notes
   :type 'function)
 
+(defcustom consult-notes-denote-display-keywords-indicator "#"
+  "Prefix to indicate Denote keywords of the file in the annotations for `consult-notes-denote-display-keywords-function'."
+  :group 'consult-notes
+  :type 'string)
+
 (defcustom consult-notes-denote-display-dir-function #'consult-notes-denote--display-dir
   "Function used to display the directory name of the file in the annotations for `consult-notes-denote'.
 
@@ -118,7 +123,9 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         :new     #'consult-notes-denote--new-note))
 
 (defun consult-notes-denote--display-keywords (keywords)
-  (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " ")) "")))
+  (format "%18s" (if keywords (concat
+			       consult-notes-denote-display-keywords-indicator
+			       (mapconcat 'identity keywords " ")) "")))
 
 (defun consult-notes-denote--display-dir (dirs)
   (format "%18s" (concat "/" dirs)))
