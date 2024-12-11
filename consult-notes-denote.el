@@ -49,10 +49,19 @@
   :group 'consult-notes
   :type 'boolean)
 
-(defcustom consult-notes-denote-files-function  #'denote-directory-files
-  "Fuction for listing denote files. If only text files are wanted see setup recommended in the README."
+(defcustom consult-notes-denote-files-function
+  (lambda () (denote-directory-files nil t nil))
+  "Function for listing Denote files. All files, only Denote files (Org, Markdown or TXT) or a regular expression."
   :group 'consult-notes
-  :type 'function)
+  :type '(choice
+          (const :tag "All files" 
+                 (lambda () (denote-directory-files nil t nil)))
+          (const :tag "Denote files"
+                 (lambda () (denote-directory-files nil t t)))
+          (function :tag "Custom regex function"
+                    :value (lambda () 
+                             (let ((regex (read-string "Enter regex: ")))
+                               (denote-directory-files regex t nil))))))
 
 (defcustom consult-notes-denote-annotate-function #'consult-notes-denote--annotate
   "Function to call for annotations of file note directories in `consult-notes'.
