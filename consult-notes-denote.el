@@ -73,6 +73,11 @@ details."
   :group 'consult-notes
   :type 'string)
 
+(defcustom consult-notes-denote-display-keywords-width 20
+  "Minimum width reserved for keywords in the annotations for `consult-notes-denote-display-keywords-function'."
+  :group 'consult-notes
+  :type 'integer)
+
 (defcustom consult-notes-denote-display-dir-function #'consult-notes-denote--display-dir
   "Function used to display the directory name of the file in the annotations for `consult-notes-denote'.
 
@@ -93,9 +98,11 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         :annotate consult-notes-denote-annotate-function
         :items    (lambda ()
                     (let* ((max-width 0)
+			   (max-title-width (- (window-width (minibuffer-window)) consult-notes-denote-display-keywords-width))
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
-                                                   (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f)) (denote-retrieve-filename-title f)))
+                                                   (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f))
+								(denote-retrieve-filename-title f)))
                                                    (title (if consult-notes-denote-display-id
                                                               (concat id " " title-1)
                                                             title-1))
@@ -103,7 +110,8 @@ This function is only called when `consult-notes-denote-dir' is not nil."
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))
                                                 (when (> current-width max-width)
-                                                  (setq max-width (+ consult-notes-denote-title-margin current-width))))
+                                                  (setq max-width (min (+ consult-notes-denote-title-margin current-width)
+								       max-title-width))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
                                           (funcall consult-notes-denote-files-function))))
                       (mapcar (lambda (c)
