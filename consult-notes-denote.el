@@ -49,10 +49,19 @@
   :group 'consult-notes
   :type 'boolean)
 
-(defcustom consult-notes-denote-files-function  #'denote-directory-files
-  "Fuction for listing denote files. If only text files are wanted see setup recommended in the README."
+(defcustom consult-notes-denote-files-function
+  (lambda () (denote-directory-files nil t nil))
+  "Function for listing Denote files. All files, only Denote files (Org, Markdown or TXT) or a regular expression."
   :group 'consult-notes
-  :type 'function)
+  :type '(choice
+          (const :tag "All files" 
+                 (lambda () (denote-directory-files nil t nil)))
+          (const :tag "Denote files"
+                 (lambda () (denote-directory-files nil t t)))
+          (function :tag "Custom regex function"
+                    :value (lambda () 
+                             (let ((regex (read-string "Enter regex: ")))
+                               (denote-directory-files regex t nil))))))
 
 (defcustom consult-notes-denote-annotate-function #'consult-notes-denote--annotate
   "Function to call for annotations of file note directories in `consult-notes'.
@@ -67,6 +76,16 @@ details."
   "Function to display the keywords of the file in the annotations for `consult-notes-denote'."
   :group 'consult-notes
   :type 'function)
+
+(defcustom consult-notes-denote-display-keywords-indicator "#"
+  "Prefix to indicate Denote keywords of the file in the annotations for `consult-notes-denote-display-keywords-function'."
+  :group 'consult-notes
+  :type 'string)
+
+(defcustom consult-notes-denote-display-keywords-width 20
+  "Minimum width reserved for keywords in the annotations for `consult-notes-denote-display-keywords-function'."
+  :group 'consult-notes
+  :type 'integer)
 
 (defcustom consult-notes-denote-display-dir-function #'consult-notes-denote--display-dir
   "Function used to display the directory name of the file in the annotations for `consult-notes-denote'.
@@ -88,9 +107,11 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         :annotate consult-notes-denote-annotate-function
         :items    (lambda ()
                     (let* ((max-width 0)
+			   (max-title-width (- (window-width (minibuffer-window)) consult-notes-denote-display-keywords-width))
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
-                                                   (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f)) (denote-retrieve-filename-title f)))
+                                                   (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f))
+								(denote-retrieve-filename-title f)))
                                                    (title (if consult-notes-denote-display-id
                                                               (concat id " " title-1)
                                                             title-1))
@@ -98,7 +119,8 @@ This function is only called when `consult-notes-denote-dir' is not nil."
                                                    (keywords (denote-extract-keywords-from-path f)))
                                               (let ((current-width (string-width title)))
                                                 (when (> current-width max-width)
-                                                  (setq max-width (+ consult-notes-denote-title-margin current-width))))
+                                                  (setq max-width (min (+ consult-notes-denote-title-margin current-width)
+								       max-title-width))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
                                           (funcall consult-notes-denote-files-function))))
                       (mapcar (lambda (c)
@@ -118,7 +140,9 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         :new     #'consult-notes-denote--new-note))
 
 (defun consult-notes-denote--display-keywords (keywords)
-  (format "%18s" (if keywords (concat "#" (mapconcat 'identity keywords " ")) "")))
+  (format "%18s" (if keywords (concat
+			       consult-notes-denote-display-keywords-indicator
+			       (mapconcat 'identity keywords " ")) "")))
 
 (defun consult-notes-denote--display-dir (dirs)
   (format "%18s" (concat "/" dirs)))
