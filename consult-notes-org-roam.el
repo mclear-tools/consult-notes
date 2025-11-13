@@ -1,4 +1,4 @@
-;;; consult-notes-org-roam.el --- Manage org-roam notes with consult -*- lexical-binding: t -*-
+;;; consult-notes-org-roam.el --- Manage org-roam notes with consult -*- lexical-binding: t; coding: utf-8-emacs -*-
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
@@ -42,6 +42,7 @@
 ;; Defined for byte-compilation. These will be set when org-roam is loaded
 (defvar org-roam-node-display-template)
 (defvar org-roam-directory)
+(defvar org-roam-dailies-directory)
 
 (declare-function org-roam-backlink-source-node "org-roam")
 (declare-function org-roam-node-visit "org-roam")
@@ -106,6 +107,14 @@ modified time. Please see the function
   "Name for narrowing key for org-roam ref notes in `consult--multi'."
   :group 'consult-notes
   :type 'key)
+
+(defcustom consult-notes-org-roam-exclude-dailies nil
+  "Whether to exclude org-roam dailies from `consult-notes'.
+When non-nil, files in `org-roam-dailies-directory' are excluded
+from the `consult-notes' command. They remain searchable via
+`consult-notes-search-in-all-notes'."
+  :group 'consult-notes
+  :type 'boolean)
 
 (defvar consult-notes-org-roam--old-display-template nil
   "For internal use only.
@@ -200,9 +209,19 @@ Set the old display template value when
     :require-match t
     :category 'org-roam-node
     :annotate ,consult-notes-org-roam-annotate-function
-    :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-node-read--completions)))
-                         (title (mapcar #'org-roam-node-title node)))
-                    (progn title)))
+    :items ,(lambda ()
+              (let* ((nodes (mapcar #'cdr (org-roam-node-read--completions)))
+                     (filtered-nodes
+                      (if (and consult-notes-org-roam-exclude-dailies
+                               (bound-and-true-p org-roam-dailies-directory))
+                          (seq-filter
+                           (lambda (node)
+                             (not (string-prefix-p
+                                   (expand-file-name org-roam-dailies-directory)
+                                   (org-roam-node-file node))))
+                           nodes)
+                        nodes)))
+                (mapcar #'org-roam-node-title filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
     :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
                          (org-roam-node-open node))))
@@ -214,9 +233,19 @@ Set the old display template value when
     :require-match t
     :category 'org-roam-ref
     :annotate ,consult-notes-org-roam-annotate-function
-    :items ,(lambda () (let* ((node (mapcar #'cdr (org-roam-ref-read--completions)))
-                         (title (mapcar #'org-roam-node-title node)))
-                    (progn title)))
+    :items ,(lambda ()
+              (let* ((nodes (mapcar #'cdr (org-roam-ref-read--completions)))
+                     (filtered-nodes
+                      (if (and consult-notes-org-roam-exclude-dailies
+                               (bound-and-true-p org-roam-dailies-directory))
+                          (seq-filter
+                           (lambda (node)
+                             (not (string-prefix-p
+                                   (expand-file-name org-roam-dailies-directory)
+                                   (org-roam-node-file node))))
+                           nodes)
+                        nodes)))
+                (mapcar #'org-roam-node-title filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
     :action (lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
                         (org-roam-node-open node))))
@@ -273,4 +302,8 @@ note. Optionally takes a selected NODE and filepaths CHOICES."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes Org Roam
 (provide 'consult-notes-org-roam)
+
+;; Local Variables:
+;; coding: utf-8-emacs
+;; End:
 ;;; consult-notes-org-roam.el ends here
