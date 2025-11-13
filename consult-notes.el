@@ -1,4 +1,4 @@
-;;; consult-notes.el --- Manage notes with consult -*- lexical-binding: t -*-
+;;; consult-notes.el --- Manage notes with consult -*- lexical-binding: t; coding: utf-8-emacs -*-
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
@@ -336,4 +336,8 @@ Which search function is used depends on the value of `consult-notes-use-rg'."
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Provide Consult Notes
 (provide 'consult-notes)
+
+;; Local Variables:
+;; coding: utf-8-emacs
+;; End:
 ;;; consult-notes.el ends here
