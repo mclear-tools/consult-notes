@@ -1,4 +1,4 @@
-;;; consult-notes-org-headings.el --- find org heading notes using consult -*- lexical-binding: t -*-
+;;; consult-notes-org-headings.el --- find org heading notes using consult -*- lexical-binding: t; coding: utf-8-emacs -*-
 
 ;; Author: Colin McLear <mclear@fastmail.com>
 ;; Maintainer: Colin McLear
@@ -100,8 +100,8 @@ MATCH, SCOPE and SKIP are as in `org-map-entries'."
 
                             (format "%18s" (propertize (concat "@" buffer) 'face 'consult-notes-sep))))
          (add-text-properties 0 1
-                              `(consult--candidate ,(point-marker)
-                                                   consult-org--heading (,level ,todo . ,prio))
+                              `(org-marker ,(point-marker)
+                                           consult-org--heading (,level ,todo . ,prio))
                               cand)
          cand))
      match scope skip)))
@@ -110,7 +110,7 @@ MATCH, SCOPE and SKIP are as in `org-map-entries'."
   "Return the marker for CAND.
 FIND-FILE is the file open function, defaulting to `find-file'."
   (when cand
-    (let* ((mrkr (and cand (get-text-property 0 'consult--candidate cand))))
+    (let* ((mrkr (and cand (get-text-property 0 'org-marker cand))))
       mrkr)))
 
 (defun consult-notes-org-headings--state ()
@@ -129,7 +129,7 @@ FIND-FILE is the file open function, defaulting to `find-file'."
   "Annotate file CAND with its file attributes, size, and modification time."
   (let* ((name (buffer-name
                 (marker-buffer
-                 (get-text-property 0 'consult--candidate cand))))
+                 (get-text-property 0 'org-marker cand))))
          (path (car
                 (consult-notes--string-matches name consult-notes-org-headings-files)))
          (attrs (file-attributes path))
@@ -143,15 +143,19 @@ FIND-FILE is the file open function, defaulting to `find-file'."
 (defconst consult-notes-org-headings--source
   (list :name (propertize "Org Headings" 'face 'consult-notes-sep)
         :narrow consult-org-headings-narrow-key
-        :category consult-notes-category
+        :category 'org-heading
         :require-match t
         :items (lambda ()
                  (consult-notes--org-headings t (consult-notes-org-headings-files)))
         :state #'consult-notes-org-headings--state
         :annotate #'consult-notes-org-headings-annotations
         :history 'consult-notes-org-headings--history
-        :lookup #'consult--lookup-candidate)
+        :lookup (lambda (selected &rest _) (get-text-property 0 'org-marker selected)))
   "Source for the `consult-notes' function.")
 
 (provide 'consult-notes-org-headings)
+
+;; Local Variables:
+;; coding: utf-8-emacs
+;; End:
 ;;; consult-notes-org-headings.el ends here
