@@ -153,6 +153,10 @@ size by setting the variables =consult-notes-org-roam-blinks= and
 database that consists of 3000+ nodes, you may see some latency with these
 additional annotations, so please adjust accordingly.
 
+If you use org-roam dailies and want to exclude them from the =consult-notes=
+interface (while keeping them searchable via =consult-notes-search-in-all-notes=),
+set =consult-notes-org-roam-exclude-dailies= to =t=.
+
 * Org Headings
 
 If you have org files with many headings (say some subset of your agenda files,
