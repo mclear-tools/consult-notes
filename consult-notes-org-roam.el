@@ -151,7 +151,7 @@ Set the old display template value when
 (defun consult-notes-org-roam-annotate (cand)
   "Annotate CAND with useful info."
   (let* ((node
-          (org-roam-node-from-title-or-alias cand))
+          (get-text-property 0 'node cand))
          (file
           (org-roam-node-file node))
          (dir
@@ -188,7 +188,7 @@ Set the old display template value when
   (let ((open (consult--temporary-files))
         (preview (consult--buffer-preview)))
     (lambda (action cand)
-      (let ((node (org-roam-node-from-title-or-alias cand)))
+      (let ((node (get-text-property 0 'node cand)))
         (unless cand
           (funcall open))
         (if (org-roam-node-p node)
@@ -220,10 +220,27 @@ Set the old display template value when
                                    (expand-file-name org-roam-dailies-directory)
                                    (org-roam-node-file node))))
                            nodes)
-                        nodes)))
-                (mapcar #'org-roam-node-title filtered-nodes)))
+                        nodes))
+                     ;; Count occurrences of each title to detect duplicates
+                     (title-counts (make-hash-table :test 'equal)))
+                ;; First pass: count titles
+                (dolist (node filtered-nodes)
+                  (let ((title (org-roam-node-title node)))
+                    (puthash title (1+ (gethash title title-counts 0)) title-counts)))
+                ;; Second pass: create candidates with disambiguation
+                (mapcar (lambda (node)
+                          (let* ((title (org-roam-node-title node))
+                                 (candidate
+                                  (if (> (gethash title title-counts) 1)
+                                      ;; Duplicate - append first 8 chars of ID
+                                      (format "%s <%s>" title
+                                              (substring (org-roam-node-id node) 0 8))
+                                    ;; Unique - use title as-is
+                                    title)))
+                            (propertize candidate 'node node)))
+                        filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action ,(lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
+    :action ,(lambda (cand) (let* ((node (get-text-property 0 'node cand)))
                          (org-roam-node-open node))))
   "Setup for `org-roam' and `consult--multi'.")
 
@@ -244,10 +261,27 @@ Set the old display template value when
                                    (expand-file-name org-roam-dailies-directory)
                                    (org-roam-node-file node))))
                            nodes)
-                        nodes)))
-                (mapcar #'org-roam-node-title filtered-nodes)))
+                        nodes))
+                     ;; Count occurrences of each title to detect duplicates
+                     (title-counts (make-hash-table :test 'equal)))
+                ;; First pass: count titles
+                (dolist (node filtered-nodes)
+                  (let ((title (org-roam-node-title node)))
+                    (puthash title (1+ (gethash title title-counts 0)) title-counts)))
+                ;; Second pass: create candidates with disambiguation
+                (mapcar (lambda (node)
+                          (let* ((title (org-roam-node-title node))
+                                 (candidate
+                                  (if (> (gethash title title-counts) 1)
+                                      ;; Duplicate - append first 8 chars of ID
+                                      (format "%s <%s>" title
+                                              (substring (org-roam-node-id node) 0 8))
+                                    ;; Unique - use title as-is
+                                    title)))
+                            (propertize candidate 'node node)))
+                        filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action (lambda (cand) (let* ((node (org-roam-node-from-title-or-alias cand)))
+    :action (lambda (cand) (let* ((node (get-text-property 0 'node cand)))
                         (org-roam-node-open node))))
   "Setup for `org-roam-refs' and `consult--multi'.")
 
