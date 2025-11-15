@@ -150,45 +150,48 @@ Set the old display template value when
 
 (defun consult-notes-org-roam-annotate (cand)
   "Annotate CAND with useful info."
-  (let* ((node
-          (get-text-property 0 'node cand))
-         (file
-          (org-roam-node-file node))
-         (dir
-          (file-name-nondirectory (directory-file-name (file-name-directory file))))
-         (size
-          (file-size-human-readable (file-attribute-size (file-attributes file))))
-         (time
-          (consult-notes--time (org-roam-node-file-mtime node)))
-         (links (caar (org-roam-db-query
-                       [:select (funcall count source)
-                        :from links
-                        :where (= dest $s1)
-                        :and (= type "id")]
-                       (org-roam-node-id node)))))
+  (if (and cand (not (string-empty-p cand)))
+      (let* ((node
+              (get-text-property 0 'node cand))
+             (file
+              (org-roam-node-file node))
+             (dir
+              (file-name-nondirectory (directory-file-name (file-name-directory file))))
+             (size
+              (file-size-human-readable (file-attribute-size (file-attributes file))))
+             (time
+              (consult-notes--time (org-roam-node-file-mtime node)))
+             (links (caar (org-roam-db-query
+                           [:select (funcall count source)
+                            :from links
+                            :where (= dest $s1)
+                            :and (= type "id")]
+                           (org-roam-node-id node)))))
 
-    (put-text-property 0 (length dir)   'face 'consult-notes-dir dir)
-    (when consult-notes-org-roam-show-file-size
-      (put-text-property 0 (length size)  'face 'consult-notes-size size))
-    (put-text-property 0 (length time)  'face 'consult-notes-time time)
-    (concat (propertize " " 'display `(space :align-to center))
-            (when consult-notes-org-roam-blinks
-              (if (> links 0)
-                  (propertize (format "%3s" links) 'face 'consult-notes-backlinks)
-                (propertize (format "%3s" "nil") 'face 'shadow)))
-            " "
-            (s-truncate 8 (format "%s" dir) "…")
-            " "
-            (when consult-notes-org-roam-show-file-size (format "%5s" size))
-            " "
-            (format "%5s" time))))
+        (put-text-property 0 (length dir)   'face 'consult-notes-dir dir)
+        (when consult-notes-org-roam-show-file-size
+          (put-text-property 0 (length size)  'face 'consult-notes-size size))
+        (put-text-property 0 (length time)  'face 'consult-notes-time time)
+        (concat (propertize " " 'display `(space :align-to center))
+                (when consult-notes-org-roam-blinks
+                  (if (> links 0)
+                      (propertize (format "%3s" links) 'face 'consult-notes-backlinks)
+                    (propertize (format "%3s" "nil") 'face 'shadow)))
+                " "
+                (s-truncate 8 (format "%s" dir) "…")
+                " "
+                (when consult-notes-org-roam-show-file-size (format "%5s" size))
+                " "
+                (format "%5s" time)))
+    ""))
 
 (defun consult-notes-org-roam-node-preview ()
   "Create preview function for nodes."
   (let ((open (consult--temporary-files))
         (preview (consult--buffer-preview)))
     (lambda (action cand)
-      (let ((node (get-text-property 0 'node cand)))
+      (let ((node (when (and cand (not (string-empty-p cand)))
+                    (get-text-property 0 'node cand))))
         (unless cand
           (funcall open))
         (if (org-roam-node-p node)
@@ -221,15 +224,29 @@ Set the old display template value when
                                    (org-roam-node-file node))))
                            nodes)
                         nodes))
+                     ;; Helper to get display title, using filename fallback for empty titles
+                     (get-display-title
+                      (lambda (node)
+                        (let ((raw-title (org-roam-node-title node)))
+                          (if (or (not raw-title)
+                                  (string-empty-p raw-title)
+                                  (string-match-p "\\`[[:space:]]*\\'" raw-title))
+                              (let ((fallback (file-name-sans-extension
+                                               (file-name-nondirectory (org-roam-node-file node)))))
+                                (if (string-empty-p fallback)
+                                    ;; Ultimate fallback: use node ID if filename is also empty
+                                    (format "[%s]" (substring (org-roam-node-id node) 0 8))
+                                  fallback))
+                            raw-title))))
                      ;; Count occurrences of each title to detect duplicates
                      (title-counts (make-hash-table :test 'equal)))
                 ;; First pass: count titles
                 (dolist (node filtered-nodes)
-                  (let ((title (org-roam-node-title node)))
+                  (let ((title (funcall get-display-title node)))
                     (puthash title (1+ (gethash title title-counts 0)) title-counts)))
                 ;; Second pass: create candidates with disambiguation
                 (mapcar (lambda (node)
-                          (let* ((title (org-roam-node-title node))
+                          (let* ((title (funcall get-display-title node))
                                  (candidate
                                   (if (> (gethash title title-counts) 1)
                                       ;; Duplicate - append first 8 chars of ID
@@ -240,8 +257,12 @@ Set the old display template value when
                             (propertize candidate 'node node)))
                         filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action ,(lambda (cand) (let* ((node (get-text-property 0 'node cand)))
-                         (org-roam-node-open node))))
+    :action ,(lambda (cand)
+               (let ((node (and cand
+                                (not (string-empty-p cand))
+                                (get-text-property 0 'node cand))))
+                 (when node
+                   (org-roam-node-open node)))))
   "Setup for `org-roam' and `consult--multi'.")
 
 (defvar consult-notes-org-roam--refs
@@ -262,15 +283,29 @@ Set the old display template value when
                                    (org-roam-node-file node))))
                            nodes)
                         nodes))
+                     ;; Helper to get display title, using filename fallback for empty titles
+                     (get-display-title
+                      (lambda (node)
+                        (let ((raw-title (org-roam-node-title node)))
+                          (if (or (not raw-title)
+                                  (string-empty-p raw-title)
+                                  (string-match-p "\\`[[:space:]]*\\'" raw-title))
+                              (let ((fallback (file-name-sans-extension
+                                               (file-name-nondirectory (org-roam-node-file node)))))
+                                (if (string-empty-p fallback)
+                                    ;; Ultimate fallback: use node ID if filename is also empty
+                                    (format "[%s]" (substring (org-roam-node-id node) 0 8))
+                                  fallback))
+                            raw-title))))
                      ;; Count occurrences of each title to detect duplicates
                      (title-counts (make-hash-table :test 'equal)))
                 ;; First pass: count titles
                 (dolist (node filtered-nodes)
-                  (let ((title (org-roam-node-title node)))
+                  (let ((title (funcall get-display-title node)))
                     (puthash title (1+ (gethash title title-counts 0)) title-counts)))
                 ;; Second pass: create candidates with disambiguation
                 (mapcar (lambda (node)
-                          (let* ((title (org-roam-node-title node))
+                          (let* ((title (funcall get-display-title node))
                                  (candidate
                                   (if (> (gethash title title-counts) 1)
                                       ;; Duplicate - append first 8 chars of ID
@@ -281,8 +316,12 @@ Set the old display template value when
                             (propertize candidate 'node node)))
                         filtered-nodes)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action (lambda (cand) (let* ((node (get-text-property 0 'node cand)))
-                        (org-roam-node-open node))))
+    :action (lambda (cand)
+              (let ((node (and cand
+                               (not (string-empty-p cand))
+                               (get-text-property 0 'node cand))))
+                (when node
+                  (org-roam-node-open node)))))
   "Setup for `org-roam-refs' and `consult--multi'.")
 
 ;; Alias org-roam-node-find
