@@ -69,9 +69,22 @@
           (propertize "${fmtime} "  'face 'consult-key)
           (propertize "${tags:10} " 'face 'org-tag)
           "${blinks:3} ")
-  "Default display template for org-roam notes."
+  "DEPRECATED: This variable is no longer used.
+
+consult-notes-org-roam now respects your org-roam display configuration.
+To customize how nodes appear in consult-notes, set `org-roam-node-display-template'
+and define custom node accessors with `cl-defmethod' as documented in the
+org-roam manual.
+
+Note: Annotations are still controlled by `consult-notes-org-roam-annotate-function'."
   :group 'consult-notes
   :type 'string)
+
+(make-obsolete-variable
+ 'consult-notes-org-roam-template
+ "Customize `org-roam-node-display-template' instead. \
+This variable is no longer used by consult-notes-org-roam."
+ "0.8")
 
 (defcustom consult-notes-org-roam-show-file-size nil
   "Show file size in annotations for org-roam notes in `consult-notes'.")
@@ -213,49 +226,57 @@ Set the old display template value when
     :category 'org-roam-node
     :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda ()
-              (let* ((nodes (mapcar #'cdr (org-roam-node-read--completions)))
-                     (filtered-nodes
+              ;; Strategy: Use org-roam's native formatting (respects user's
+              ;; org-roam-node-display-template and custom node accessors),
+              ;; but enhance with consult-notes safety features:
+              ;; - Handle empty formatted strings with filename/ID fallbacks
+              ;; - Add ID disambiguation for duplicate titles
+              ;; - Support dailies exclusion
+              (let* ((completions (org-roam-node-read--completions))
+                     (filtered-completions
                       (if (and consult-notes-org-roam-exclude-dailies
                                (bound-and-true-p org-roam-dailies-directory))
                           (seq-filter
-                           (lambda (node)
+                           (lambda (completion)
                              (not (string-prefix-p
                                    (expand-file-name org-roam-dailies-directory)
-                                   (org-roam-node-file node))))
-                           nodes)
-                        nodes))
-                     ;; Helper to get display title, using filename fallback for empty titles
-                     (get-display-title
-                      (lambda (node)
-                        (let ((raw-title (org-roam-node-title node)))
-                          (if (or (not raw-title)
-                                  (string-empty-p raw-title)
-                                  (string-match-p "\\`[[:space:]]*\\'" raw-title))
-                              (let ((fallback (file-name-sans-extension
-                                               (file-name-nondirectory (org-roam-node-file node)))))
-                                (if (string-empty-p fallback)
-                                    ;; Ultimate fallback: use node ID if filename is also empty
-                                    (format "[%s]" (substring (org-roam-node-id node) 0 8))
-                                  fallback))
-                            raw-title))))
+                                   (org-roam-node-file (cdr completion)))))
+                           completions)
+                        completions))
+                     ;; Helper to handle empty formatted strings with fallbacks
+                     (get-display-candidate
+                      (lambda (formatted-string node)
+                        (if (or (not formatted-string)
+                                (string-empty-p formatted-string)
+                                (string-match-p "\\`[[:space:]]*\\'" formatted-string))
+                            (let ((fallback (file-name-sans-extension
+                                             (file-name-nondirectory (org-roam-node-file node)))))
+                              (if (string-empty-p fallback)
+                                  ;; Ultimate fallback: use node ID if filename is also empty
+                                  (format "[%s]" (substring (org-roam-node-id node) 0 8))
+                                fallback))
+                          formatted-string)))
                      ;; Count occurrences of each title to detect duplicates
                      (title-counts (make-hash-table :test 'equal)))
-                ;; First pass: count titles
-                (dolist (node filtered-nodes)
-                  (let ((title (funcall get-display-title node)))
+                ;; First pass: count titles for duplicate detection
+                (dolist (completion filtered-completions)
+                  (let ((title (org-roam-node-title (cdr completion))))
                     (puthash title (1+ (gethash title title-counts 0)) title-counts)))
-                ;; Second pass: create candidates with disambiguation
-                (mapcar (lambda (node)
-                          (let* ((title (funcall get-display-title node))
+                ;; Second pass: create enhanced candidates with disambiguation
+                (mapcar (lambda (completion)
+                          (let* ((formatted (car completion))
+                                 (node (cdr completion))
+                                 (title (org-roam-node-title node))
+                                 (display-string (funcall get-display-candidate formatted node))
                                  (candidate
                                   (if (> (gethash title title-counts) 1)
                                       ;; Duplicate - append first 8 chars of ID
-                                      (format "%s <%s>" title
+                                      (format "%s <%s>" display-string
                                               (substring (org-roam-node-id node) 0 8))
-                                    ;; Unique - use title as-is
-                                    title)))
+                                    ;; Unique - use formatted string as-is
+                                    display-string)))
                             (propertize candidate 'node node)))
-                        filtered-nodes)))
+                        filtered-completions)))
     :state ,#'consult-notes-org-roam-node-preview
     :action ,(lambda (cand)
                (let ((node (and cand
@@ -272,49 +293,57 @@ Set the old display template value when
     :category 'org-roam-ref
     :annotate ,consult-notes-org-roam-annotate-function
     :items ,(lambda ()
-              (let* ((nodes (mapcar #'cdr (org-roam-ref-read--completions)))
-                     (filtered-nodes
+              ;; Strategy: Use org-roam's native formatting (respects user's
+              ;; org-roam-node-display-template and custom node accessors),
+              ;; but enhance with consult-notes safety features:
+              ;; - Handle empty formatted strings with filename/ID fallbacks
+              ;; - Add ID disambiguation for duplicate titles
+              ;; - Support dailies exclusion
+              (let* ((completions (org-roam-ref-read--completions))
+                     (filtered-completions
                       (if (and consult-notes-org-roam-exclude-dailies
                                (bound-and-true-p org-roam-dailies-directory))
                           (seq-filter
-                           (lambda (node)
+                           (lambda (completion)
                              (not (string-prefix-p
                                    (expand-file-name org-roam-dailies-directory)
-                                   (org-roam-node-file node))))
-                           nodes)
-                        nodes))
-                     ;; Helper to get display title, using filename fallback for empty titles
-                     (get-display-title
-                      (lambda (node)
-                        (let ((raw-title (org-roam-node-title node)))
-                          (if (or (not raw-title)
-                                  (string-empty-p raw-title)
-                                  (string-match-p "\\`[[:space:]]*\\'" raw-title))
-                              (let ((fallback (file-name-sans-extension
-                                               (file-name-nondirectory (org-roam-node-file node)))))
-                                (if (string-empty-p fallback)
-                                    ;; Ultimate fallback: use node ID if filename is also empty
-                                    (format "[%s]" (substring (org-roam-node-id node) 0 8))
-                                  fallback))
-                            raw-title))))
+                                   (org-roam-node-file (cdr completion)))))
+                           completions)
+                        completions))
+                     ;; Helper to handle empty formatted strings with fallbacks
+                     (get-display-candidate
+                      (lambda (formatted-string node)
+                        (if (or (not formatted-string)
+                                (string-empty-p formatted-string)
+                                (string-match-p "\\`[[:space:]]*\\'" formatted-string))
+                            (let ((fallback (file-name-sans-extension
+                                             (file-name-nondirectory (org-roam-node-file node)))))
+                              (if (string-empty-p fallback)
+                                  ;; Ultimate fallback: use node ID if filename is also empty
+                                  (format "[%s]" (substring (org-roam-node-id node) 0 8))
+                                fallback))
+                          formatted-string)))
                      ;; Count occurrences of each title to detect duplicates
                      (title-counts (make-hash-table :test 'equal)))
-                ;; First pass: count titles
-                (dolist (node filtered-nodes)
-                  (let ((title (funcall get-display-title node)))
+                ;; First pass: count titles for duplicate detection
+                (dolist (completion filtered-completions)
+                  (let ((title (org-roam-node-title (cdr completion))))
                     (puthash title (1+ (gethash title title-counts 0)) title-counts)))
-                ;; Second pass: create candidates with disambiguation
-                (mapcar (lambda (node)
-                          (let* ((title (funcall get-display-title node))
+                ;; Second pass: create enhanced candidates with disambiguation
+                (mapcar (lambda (completion)
+                          (let* ((formatted (car completion))
+                                 (node (cdr completion))
+                                 (title (org-roam-node-title node))
+                                 (display-string (funcall get-display-candidate formatted node))
                                  (candidate
                                   (if (> (gethash title title-counts) 1)
                                       ;; Duplicate - append first 8 chars of ID
-                                      (format "%s <%s>" title
+                                      (format "%s <%s>" display-string
                                               (substring (org-roam-node-id node) 0 8))
-                                    ;; Unique - use title as-is
-                                    title)))
+                                    ;; Unique - use formatted string as-is
+                                    display-string)))
                             (propertize candidate 'node node)))
-                        filtered-nodes)))
+                        filtered-completions)))
     :state ,#'consult-notes-org-roam-node-preview
     :action (lambda (cand)
               (let ((node (and cand
