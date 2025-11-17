@@ -249,28 +249,31 @@ and DIR is the directory to find notes."
 ;; Define a minor-mode for consult-notes & org-roam
 ;;;###autoload
 (define-minor-mode consult-notes-org-roam-mode
-  "Toggle `consult-notes-org-roam-mode' to integrate consult with org-roam.
+  "Toggle `consult-notes-org-roam-mode' to integrate org-roam with consult-notes.
 
-By enabling `consult-notes-org-roam-mode' the functions
-`org-roam-node-read' and `org-roam-ref-read' are overriden by
-consult-notes' org-roam equivalents. Optional argument ARG indicates
-whether the mode should be enabled or disabled."
+When enabled, this mode adds org-roam nodes and refs as sources in
+`consult-notes', allowing you to search and select org-roam content
+alongside other note sources.
+
+The display format respects your `org-roam-node-display-template'
+customization and any custom node accessor methods you've defined with
+`cl-defmethod'. Annotations are controlled by
+`consult-notes-org-roam-annotate-function'.
+
+Optional argument ARG indicates whether the mode should be enabled or disabled."
   :init-value nil
   :group 'consult-notes
   :global t
   (require 'consult-notes-org-roam)
-  ;; Add or remove advice when enabled respectively disabled
+  ;; Add or remove sources when enabled or disabled
+  ;; Note: We no longer override org-roam-node-display-template as of v0.8
+  ;; Users should customize org-roam-node-display-template directly
   (cond (consult-notes-org-roam-mode
-         ;; Save previous value of display-template
-         (setq consult-notes-org-roam--old-display-template org-roam-node-display-template)
-         ;; Set new value
-         (setq org-roam-node-display-template consult-notes-org-roam-template)
          ;; Add org-roam consult--multi integration
          (add-to-list 'consult-notes-all-sources 'consult-notes-org-roam--nodes 'append)
          (add-to-list 'consult-notes-all-sources 'consult-notes-org-roam--refs 'append))
         (t
-         ;; Reset display template value
-         (setq org-roam-node-display-template consult-notes-org-roam--old-display-template)
+         ;; Remove org-roam sources
          (delete 'consult-notes-org-roam--nodes consult-notes-all-sources)
          (delete 'consult-notes-org-roam--refs  consult-notes-all-sources))))
 

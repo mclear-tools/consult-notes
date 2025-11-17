@@ -130,9 +130,16 @@ from the `consult-notes' command. They remain searchable via
   :type 'boolean)
 
 (defvar consult-notes-org-roam--old-display-template nil
-  "For internal use only.
-Set the old display template value when
-`consult-notes-org-roam-mode' is loaded.")
+  "DEPRECATED: This variable is no longer used.
+
+Previously used to save the user's org-roam-node-display-template value,
+but as of v0.8 we no longer override that variable.")
+
+(make-obsolete-variable
+ 'consult-notes-org-roam--old-display-template
+ "No longer needed as consult-notes-org-roam-mode no longer overrides \
+org-roam-node-display-template."
+ "0.8")
 
 ;;;; Functions
 ;; Display functions
@@ -158,7 +165,7 @@ Set the old display template value when
                        (org-roam-node-id node)))))
     (if (> count 0)
         (propertize (format "%3s" count) 'face 'default)
-      (propertize (format "%3s" "nil") 'face 'shadow))))
+      (propertize "   " 'face 'shadow))))
 
 
 (defun consult-notes-org-roam-annotate (cand)
@@ -189,7 +196,7 @@ Set the old display template value when
                 (when consult-notes-org-roam-blinks
                   (if (> links 0)
                       (propertize (format "%3s" links) 'face 'consult-notes-backlinks)
-                    (propertize (format "%3s" "nil") 'face 'shadow)))
+                    (propertize "   " 'face 'shadow)))
                 " "
                 (s-truncate 8 (format "%s" dir) "…")
                 " "
