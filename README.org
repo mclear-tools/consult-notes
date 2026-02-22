@@ -153,6 +153,20 @@ size by setting the variables =consult-notes-org-roam-blinks= and
 database that consists of 3000+ nodes, you may see some latency with these
 additional annotations, so please adjust accordingly.
 
+When you select a node, =consult-notes= opens it using
+=consult-notes-org-roam-open-function=, which defaults to =org-roam-node-visit=.
+This opens the node in the current window and respects =other-window-prefix=
+(=C-x 4 4=). To restore the previous behavior (which follows
+=org-link-frame-setup= and typically opens in another window), set:
+
+#+begin_src emacs-lisp
+(setq consult-notes-org-roam-open-function #'org-roam-node-open)
+#+end_src
+
+If your input does not match an existing node, =consult-notes= will create a new
+org-roam node using =org-roam-capture-=. This mirrors the behavior of
+=org-roam-node-find= and the denote integration.
+
 If you use org-roam dailies and want to exclude them from the =consult-notes=
 interface (while keeping them searchable via =consult-notes-search-in-all-notes=),
 set =consult-notes-org-roam-exclude-dailies= to =t=.

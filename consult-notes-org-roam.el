@@ -53,6 +53,7 @@
 (declare-function org-roam-backlink-target-node "org-roam")
 (declare-function org-roam-ref-read--completions "org-roam")
 (declare-function org-roam-node-open "org-roam")
+(declare-function org-roam-capture- "org-roam")
 (declare-function org-roam-node-title "org-roam")
 (declare-function org-roam-node-read--completions "org-roam")
 (declare-function org-roam-node-from-title-or-alias "org-roam")
@@ -128,6 +129,19 @@ from the `consult-notes' command. They remain searchable via
 `consult-notes-search-in-all-notes'."
   :group 'consult-notes
   :type 'boolean)
+
+(defcustom consult-notes-org-roam-open-function #'org-roam-node-visit
+  "Function used to open an org-roam node from `consult-notes'.
+
+The function is called with a single argument, the org-roam node.
+
+The default `org-roam-node-visit' opens the node in the current
+window and respects `other-window-prefix' (C-x 4 4).
+
+Set to `org-roam-node-open' for the previous behavior, which
+follows `org-link-frame-setup' (typically opens in other window)."
+  :group 'consult-notes
+  :type 'function)
 
 (defvar consult-notes-org-roam--old-display-template nil
   "DEPRECATED: This variable is no longer used.
@@ -224,12 +238,28 @@ org-roam-node-display-template."
                           (funcall open (org-roam-node-file node)))))))))
 
 
+(defun consult-notes-org-roam--action (cand)
+  "Open org-roam node for CAND.
+Uses `consult-notes-org-roam-open-function' to open the node."
+  (let ((node (and cand
+                   (not (string-empty-p cand))
+                   (get-text-property 0 'node cand))))
+    (when node
+      (funcall consult-notes-org-roam-open-function node))))
+
+(defun consult-notes-org-roam--new-node (cand)
+  "Create a new org-roam node with title CAND."
+  (let ((node (org-roam-node-create :title cand)))
+    (when node
+      (org-roam-capture-
+       :node node
+       :props '(:finalize find-file)))))
+
 ;;;; Org-Roam & Consult--Multi
 ;; Define sources for consult--multi
 (defvar consult-notes-org-roam--nodes
   `(:name ,(propertize consult-notes-org-roam-node-name 'face 'consult-notes-sep)
     :narrow ,consult-notes-org-roam-node-narrow-key
-    :require-match t
     :category 'org-roam-node
     ;; Use lambda wrapper to look up function at runtime, not at byte-compile time
     :annotate ,(lambda (cand) (funcall consult-notes-org-roam-annotate-function cand))
@@ -286,12 +316,8 @@ org-roam-node-display-template."
                             (propertize candidate 'node node)))
                         filtered-completions)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action ,(lambda (cand)
-               (let ((node (and cand
-                                (not (string-empty-p cand))
-                                (get-text-property 0 'node cand))))
-                 (when node
-                   (org-roam-node-open node)))))
+    :action ,#'consult-notes-org-roam--action
+    :new ,#'consult-notes-org-roam--new-node)
   "Setup for `org-roam' and `consult--multi'.")
 
 (defvar consult-notes-org-roam--refs
@@ -354,12 +380,7 @@ org-roam-node-display-template."
                             (propertize candidate 'node node)))
                         filtered-completions)))
     :state ,#'consult-notes-org-roam-node-preview
-    :action (lambda (cand)
-              (let ((node (and cand
-                               (not (string-empty-p cand))
-                               (get-text-property 0 'node cand))))
-                (when node
-                  (org-roam-node-open node)))))
+    :action ,#'consult-notes-org-roam--action)
   "Setup for `org-roam-refs' and `consult--multi'.")
 
 ;; Alias org-roam-node-find
