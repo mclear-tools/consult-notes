@@ -95,9 +95,22 @@ This function is only called when `consult-notes-denote-dir' is not nil."
   :type 'function)
 
 (defcustom consult-notes-denote-title-margin 24
-  "Margin between the title and the keywords in the annotations for `consult-notes-denote'."
+  "Margin between the title and the keywords in the annotations for `consult-notes-denote'.
+Only used when `consult-notes-denote-title-width' is nil."
   :group 'consult-notes
   :type 'integer)
+
+(defcustom consult-notes-denote-title-width nil
+  "Fixed width for the title column in `consult-notes-denote'.
+
+When set to a number, titles are truncated (or padded) to exactly
+this many columns, giving precise control over column alignment.
+
+When nil (the default), the title column width is auto-computed
+from the widest title plus `consult-notes-denote-title-margin'."
+  :group 'consult-notes
+  :type '(choice (const :tag "Auto-compute from widest title" nil)
+                 (integer :tag "Fixed column width")))
 
 ;;;; Source
 (defconst consult-notes-denote--source
@@ -107,33 +120,39 @@ This function is only called when `consult-notes-denote-dir' is not nil."
         ;; Use lambda wrapper to look up function at runtime, not at byte-compile time
         :annotate (lambda (cand) (funcall consult-notes-denote-annotate-function cand))
         :items    (lambda ()
-                    (let* ((max-width 0)
-			   (max-title-width (- (window-width (minibuffer-window)) consult-notes-denote-display-keywords-width))
+                    (let* ((fixed-width consult-notes-denote-title-width)
+                           (max-width 0)
+                           (max-title-width (- (window-width (minibuffer-window)) consult-notes-denote-display-keywords-width))
                            (cands (mapcar (lambda (f)
                                             (let* ((id (denote-retrieve-filename-identifier f))
                                                    (title-1 (or (denote-retrieve-title-value f (denote-filetype-heuristics f))
-								(denote-retrieve-filename-title f)))
+                                                                (denote-retrieve-filename-title f)))
                                                    (title (if consult-notes-denote-display-id
                                                               (concat id " " title-1)
                                                             title-1))
+                                                   (title (if fixed-width
+                                                              (truncate-string-to-width title fixed-width nil ?\s t)
+                                                            title))
                                                    (dir (file-relative-name (file-name-directory f) denote-directory))
                                                    (keywords (denote-extract-keywords-from-path f)))
-                                              (let ((current-width (string-width title)))
-                                                (when (> current-width max-width)
-                                                  (setq max-width (min (+ consult-notes-denote-title-margin current-width)
-								       max-title-width))))
+                                              (unless fixed-width
+                                                (let ((current-width (string-width title)))
+                                                  (when (> current-width max-width)
+                                                    (setq max-width (min (+ consult-notes-denote-title-margin current-width)
+                                                                         max-title-width)))))
                                               (propertize title 'denote-path f 'denote-keywords keywords)))
-                                          (funcall consult-notes-denote-files-function))))
+                                          (funcall consult-notes-denote-files-function)))
+                           (align-width (if fixed-width (+ 2 fixed-width) (+ 2 max-width))))
                       (mapcar (lambda (c)
                                 (let* ((keywords (get-text-property 0 'denote-keywords c))
                                        (path (get-text-property 0 'denote-path c))
                                        (dirs (directory-file-name (file-relative-name (file-name-directory path) denote-directory))))
                                   (concat c
                                           ;; align keywords
-                                          (propertize " " 'display `(space :align-to (+ left ,(+ 2 max-width))))
-					  (propertize (funcall consult-notes-denote-display-keywords-function keywords) 'face 'consult-notes-name)
-					  (when consult-notes-denote-dir
-					    (propertize (funcall consult-notes-denote-display-dir-function dirs) 'face 'consult-notes-name)))))
+                                          (propertize " " 'display `(space :align-to (+ left ,align-width)))
+                                          (propertize (funcall consult-notes-denote-display-keywords-function keywords) 'face 'consult-notes-name)
+                                          (when consult-notes-denote-dir
+                                            (propertize (funcall consult-notes-denote-display-dir-function dirs) 'face 'consult-notes-name)))))
                               cands)))
         ;; Custom preview
         :state  #'consult-notes-denote--state

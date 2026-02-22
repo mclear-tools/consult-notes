@@ -106,6 +106,18 @@ to adjust the way in which the keywords and directory are displayed. Third, the
 minor mode sets the default function when there is no match to create a denote
 note. Turning off the minor mode resets the defaults.
 
+For precise column alignment, set =consult-notes-denote-title-width= to a fixed
+number of columns. Titles longer than this value are truncated with an ellipsis,
+and shorter titles are padded, so that keywords and other fields start at a
+consistent column:
+
+#+begin_src emacs-lisp
+(setq consult-notes-denote-title-width 40)
+#+end_src
+
+When =consult-notes-denote-title-width= is nil (the default), the title column
+auto-sizes based on the widest title plus =consult-notes-denote-title-margin=.
+
 Please note that if you use denote with siloed directories then you need to
 modify the default =dir-locals.el= file so as use a string rather than the
 variable =default-directory=. So put something like the following in the
