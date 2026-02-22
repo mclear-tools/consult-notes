@@ -135,6 +135,10 @@ If you use denote to store more than just text files you may want to adjust it a
 
 If you use an older version of Denote, you can instead set =consult-notes-denote-files-function= to use =denote-directory-text-only-files=.
 
+If you use =denote-silo-extras= and want each silo to appear as a separate
+source in =consult-notes=, see [[https://github.com/mclear-tools/consult-notes/issues/63][issue #63]] for a working configuration example
+that creates per-silo sources with their own narrowing keys.
+
 * Org-Roam
 
 [[https://github.com/org-roam/org-roam][Org-roam]] may be used in conjunction with consult-notes but two things should be
